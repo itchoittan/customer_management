@@ -1,14 +1,35 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+
 <%@page import="bean.*"%>
 <%@page import="java.util.Date"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%
-	ArrayList<FoodPrice> foodlist = (ArrayList<FoodPrice>) request.getAttribute("foodlist");
+	Customer customer = (Customer) request.getAttribute("customer");
+
+String mobilephone = "";
+if (customer.getMobilephone() != null)
+	mobilephone = customer.getMobilephone();
+String phone = "";
+if (customer.getPhone() != null)
+	phone = customer.getPhone();
+
+ArrayList<Food> foodregistration = (ArrayList<Food>) request.getAttribute("foodregistration");
+ArrayList<Drink> drinkregistration = (ArrayList<Drink>) request.getAttribute("drinkregistration");
+ArrayList<Message> messagelist = (ArrayList<Message>) request.getAttribute("messagelist");
+
+/*String message = "";
+for (int i = 0; i < messagelist.size(); i++) {
+	message += messagelist.get(i).getMessage();
+	message += "\n";
+}
+*/
+ArrayList<FoodPrice> foodlist = (ArrayList<FoodPrice>) request.getAttribute("foodlist");
 ArrayList<DrinkPrice> drinklist = (ArrayList<DrinkPrice>) request.getAttribute("drinklist");
-ArrayList<String> errormessage = (ArrayList<String>) request.getAttribute("errormessage");
+ArrayList<String> errormessages = (ArrayList<String>) request.getAttribute("errormessage");
+
 Date orderdate = (Date) request.getAttribute("orderdate");
 SimpleDateFormat sdfY = new SimpleDateFormat("yyyy");
 SimpleDateFormat sdfM = new SimpleDateFormat("MM");
@@ -18,13 +39,18 @@ String orderdateM = sdfM.format(orderdate);
 String orderdateD = sdfD.format(orderdate);
 %>
 
+
+
+
+
+
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
 <meta charset="UTF-8">
 
-<style>
 
+<style>
 style>img {
 	width: 80%;
 	height: auto;
@@ -126,11 +152,11 @@ textarea:disabled {
 	margin-bottom: 20px;
 }
 
-.nameneed{
-text-indent: 1em;
-font-size: 12px;
-color: #ff0000;
-margin-left: 15px;
+.nameneed {
+	text-indent: 1em;
+	font-size: 12px;
+	color: #ff0000;
+	margin-left: 15px;
 }
 
 .privacy2 {
@@ -215,7 +241,6 @@ margin-left: 15px;
 	top: 4px;
 }
 
-
 .underline {
 	background: linear-gradient(transparent 70%, #ffa3d1 70%);
 }
@@ -248,15 +273,13 @@ margin-left: 15px;
 */
 
 
-
-
         const foods = [
         	<%for (FoodPrice fp : foodlist) {
 	out.println(
 			"{ id: '" + fp.getFood_price_id() + "', food: '" + fp.getFood() + "', price: " + fp.getFoodprice() + " },");
 
 }%>
-        ]
+        ];
         food_stocks = [];
 
         const drinks = [
@@ -265,8 +288,29 @@ margin-left: 15px;
 			+ " },");
 
 }%>
-        ]
+        ];
         drink_stocks = [];
+
+        const func_bt_change =function () {
+			this.removeEventListener('click',func_bt_change);
+			const registration = document.getElementById('registration');
+			registration.innerHTML = '<input type="submit" value="登　録">';
+
+			let input_item = document.getElementById('all_area').getElementsByTagName('input');
+            for( let i = 0; i < input_item.length; i++){
+            	input_item[i].disabled = false;
+            }
+            let text_item = document.getElementById('all_area').getElementsByTagName('textarea');
+            for( let i = 0; i < text_item.length; i++){
+            	text_item[i].disabled = false;
+            }
+            let select_item = document.getElementById('all_area').getElementsByTagName('select');
+            for( let i = 0; i < select_item.length; i++){
+            	select_item[i].disabled = false;
+            }
+        }
+
+
 
         window.onload = function () {
             const sel_food = document.getElementById('sel_food');
@@ -324,20 +368,48 @@ margin-left: 15px;
                     }
                 });
             });
+
+
+            let input_item = document.getElementById('all_area').getElementsByTagName('input');
+            for( let i = 0; i < input_item.length; i++){
+            	input_item[i].disabled = true;
+            }
+            let text_item = document.getElementById('all_area').getElementsByTagName('textarea');
+            for( let i = 0; i < text_item.length; i++){
+            	text_item[i].disabled = true;
+            }
+            let select_item = document.getElementById('all_area').getElementsByTagName('select');
+            for( let i = 0; i < select_item.length; i++){
+            	select_item[i].disabled = true;
+            }
+            document.getElementById('bt_change').disabled = false;
+
+            document.getElementById('bt_change').addEventListener('click',func_bt_change);
+
+
+
         }
 
-    </script>
-<title>入力画面</title>
-</head>
 
+    </script>
+
+
+
+
+
+
+<title>登録情報画面</title>
+</head>
 <body>
-	<form method="post" class="large_block">
+
+	<form method="post" class="large_block" id="all_area"
+		action="./registration">
 		<div class="customer">
 			<div class="error">
 				<%
-					if (errormessage != null) {
+					if (errormessages != null) {
 				%>
-				<c:forEach var="error" items="${errormessage}">
+				<c:forEach var="error" items="${errormessages}">
 					<p>
 						<c:out value="${error}" />
 					</p>
@@ -356,30 +428,35 @@ margin-left: 15px;
 				</div>
 
 				<div class="privacy2">
-					<label>名前<span class="nameneed">※入力必須項目</span><input type="text" name="name" placeholder="カタカナ"></label>
-					<label>携帯番号<input type="tel" name="mobilephone"
-						pattern="[0-9]{3}[0-9]{4}[0-9]{4}" placeholder="09012345678"></label>
-					<label>固定電話<input type="tel" name="phone"
-						pattern="[0-9]{4}[0-9]{2}[0-9]{4}" placeholder="0666447777"></label>
-					<label>誕生日<input type="date" name="birthday"></label> <label>年齢<input
-						type="text" name="age" placeholder="だいたいの年齢"></label> <label>来店回数<input
-						type="number" name="numbervisit"></label>
+					<input type="hidden" name="customer_id"
+						value="<%=customer.getCustomers_id()%>"> <label for="name">名前<span
+						class="nameneed">※入力必須項目</span></label><input type="text" name="name"
+						id="name" placeholder="カタカナ" value="<%=customer.getName()%>">
+					<label>携帯番号</label><input type="tel" name="mobilephone"
+						pattern="[0-9]{3}[0-9]{4}[0-9]{4}" value="<%=mobilephone%>"><label>固定電話</label><input
+						type="tel" name="phone" pattern="[0-9]{4}[0-9]{2}[0-9]{4}"
+						value="<%=phone%>"><label>誕生日</label><input type="date"
+						name="birthday" value="<%=customer.getBirthday()%>"><label>年齢</label><input
+						type="text" name="age" placeholder="だいたいの年齢"
+						value="<%=customer.getAge()%>"><label>来店回数</label><input
+						type="number" name="numbervisit"
+						value="<%=customer.getNumbervisit()%>">
 				</div>
 				<!-- 画像は切り替わるよりスライドショーが良いかもしれない
 名前か電話番号が登録されていないと登録ボタンを押せないようにする -->
 
-
 			</div>
 
 			<div class="privacy4">
+				<%=customer.getName()%>
 				<label>好きなもの（料理・ドリンク等）</label>
-				<textarea name="likefood" id="" cols="30" rows="4"></textarea>
+				<textarea name="likefood" id="" cols="30" rows="4"><%=customer.getLikefood()%></textarea>
 				<!-- disabledを入れると部品を無効化
                     readonlyを入れると書き換えを禁止 -->
 				<label>嫌いなもの（料理・ドリンク等）</label>
-				<textarea name="hatefood" id="" cols="30" rows="4"></textarea>
+				<textarea name="hatefood" id="" cols="30" rows="4"><%=customer.getHatefood()%></textarea>
 				<label>○○様全般メモ（接客時の注意事項や共有すること）</label>
-				<textarea name="memo" id="" cols="30" rows="4"></textarea>
+				<textarea name="memo" id="" cols="30" rows="4"><%=customer.getText()%></textarea>
 			</div>
 		</div>
 
@@ -399,6 +476,19 @@ margin-left: 15px;
 				</div>
 				<table id="table_food">
 				</table>
+				<%
+					if (foodregistration != null) {
+				%>
+				<c:forEach var="food" items="${foodregistration}">
+					<p>
+						<c:out value="${food.food}" />
+						<c:out value="${food.foodprice}" />
+						<c:out value="${food.quantity}" />
+					</p>
+				</c:forEach>
+				<%
+					}
+				%>
 			</div>
 
 			<div>
@@ -411,24 +501,49 @@ margin-left: 15px;
 				</div>
 				<table id="table_drink">
 				</table>
+				<%
+					if (drinkregistration != null) {
+				%>
+				<c:forEach var="drink" items="${drinkregistration}">
+					<p>
+						<c:out value="${drink.drink}" />
+						<c:out value="${drink.drinkprice}" />
+						<c:out value="${drink.quantity}" />
+					</p>
+				</c:forEach>
+				<%
+					}
+				%>
 			</div>
 
 			<div>
-				<label>当日単価:<input type="number"></label>
+				<label>当日単価:<input type="number" value=""></label>
 			</div>
 
 			<div>
 				<label>本日の一言メモ</label>
-				<textarea name="message" id="" cols="30" rows="4"></textarea>
+				<%
+					for (int i = 0; i < messagelist.size(); i++) {
+				%>
+
+				<textarea name="message" id="" cols="30" rows="4"><%=messagelist.get(i).getMessage()%></textarea>
+				<input type="hidden" name="message_id"
+					value="<%=messagelist.get(i).getMessage_id()%>">
+				<%
+					}
+				%>
 			</div>
 
 		</div>
 
-		<div class="registration">
-			<input type="submit" value="登　録">
+		<div class="registration" id="registration">
+			<input type="button" id="bt_change" value="変　更">
 		</div>
 
 	</form>
+
+
+
 
 </body>
 </html>

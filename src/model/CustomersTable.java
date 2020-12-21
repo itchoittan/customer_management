@@ -3,6 +3,7 @@ package model;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,245 +13,276 @@ import bean.Customer;
 public class CustomersTable extends DbAccess {
 
 	public int customersInsert(String name, String mobilephone, String phone, Date birthday, int age,
-			String photo, String like, String hate, String text, int numbervisit) {
+			String photo, String likefood, String hatefood, String memo, int numbervisit) throws SQLException {
 
 		int autoIncrementKey = 0;
 
-		try (
+		PreparedStatement pstmt = connection.prepareStatement(
+				"INSERT INTO customers(name, mobilephone, phone, birthday, age, photo, likefood, hatefood, memo, numbervisit) VALUES(?,?,?,?,?,?,?,?,?,?)",
+				Statement.RETURN_GENERATED_KEYS);
 
-				PreparedStatement pstmt = connection.prepareStatement(
-						"INSERT INTO customers(name, mobilephone, phone, birthday, age, photo, likefood, hatefood, memo, numbervisit) VALUES(?,?,?,?,?,?,?,?,?,?)");) {
-
-			pstmt.setString(1, name);
-			pstmt.setString(2, mobilephone);
-			pstmt.setString(3, phone);
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-			if (birthday == null) {
-				pstmt.setString(4, "0000-00-00");
-			} else {
-				pstmt.setString(4, sdf.format(birthday));
-			}
-			pstmt.setInt(5, age);
-			pstmt.setString(6, photo);
-			pstmt.setString(7, like);
-			pstmt.setString(8, hate);
-			pstmt.setString(9, text);
-			pstmt.setInt(10, numbervisit);
-			pstmt.executeUpdate();
-			System.out.println("データの挿入に成功しました。");
-
-			// getGeneratedKeys()により、Auto_IncrementされたIDを取得する
-			ResultSet res = pstmt.getGeneratedKeys();
-
-			if (res.next()) {
-				autoIncrementKey = res.getInt(1);
-			}
-
-			res.close();
-
-		} catch (SQLException e) {
-			e.printStackTrace();
+		pstmt.setString(1, name);
+		pstmt.setString(2, mobilephone);
+		pstmt.setString(3, phone);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		if (birthday == null) {
+			pstmt.setString(4, "1800-01-01");
+		} else {
+			pstmt.setString(4, sdf.format(birthday));
 		}
+		pstmt.setInt(5, age);
+		pstmt.setString(6, photo);
+		pstmt.setString(7, likefood);
+		pstmt.setString(8, hatefood);
+		pstmt.setString(9, memo);
+		pstmt.setInt(10, numbervisit);
+		pstmt.executeUpdate();
+		System.out.println("customerデータの挿入に成功しました。");
+
+		// getGeneratedKeys()により、Auto_IncrementされたIDを取得する
+		ResultSet res = pstmt.getGeneratedKeys();
+
+		if (res.next()) {
+			autoIncrementKey = res.getInt(1);
+		}
+
+		res.close();
+		pstmt.close();
 
 		return autoIncrementKey;
 	}
 
-	public Customer mobilephoneRead(String inputMobilephone) {
+	public Customer mobilephoneRead(String inputMobilephone) throws SQLException {
 
-		if(inputMobilephone.equals("")) {
+		if (inputMobilephone == null) {
+			return null;
+		}
+
+		if (inputMobilephone.equals("")) {
 			return null;
 		}
 
 		Customer customer = null;
 
-		try (
+		PreparedStatement pstmt = connection
+				.prepareStatement("SELECT * FROM customers WHERE mobilephone=?");
+		pstmt.setString(1, inputMobilephone);
 
-				PreparedStatement pstmt = connection
-						.prepareStatement("SELECT * FROM customers WHERE mobilephone=?");) {
-			pstmt.setString(1, inputMobilephone);
+		ResultSet rs = pstmt.executeQuery();
 
-			try (
+		if (rs.next()) {
 
-					ResultSet rs = pstmt.executeQuery();) {
+			int customer_id = rs.getInt("customer_id");
+			String name = rs.getString("name");
+			String mobilephone = rs.getString("mobilephone");
+			String phone = rs.getString("phone");
+			Date birthday = rs.getTimestamp("birthday");
+			int age = rs.getInt("age");
+			String photo = rs.getString("photo");
+			String like = rs.getString("likefood");
+			String hate = rs.getString("hatefood");
+			String text = rs.getString("memo");
+			int numbervisit = rs.getInt("numbervisit");
 
-				if (rs.next()) {
-
-					int customer_id = rs.getInt("customer_id");
-					String name = rs.getString("name");
-					String mobilephone = rs.getString("mobilephone");
-					String phone = rs.getString("phone");
-					Date birthday = rs.getTimestamp("birthday");
-					int age = rs.getInt("age");
-					String photo = rs.getString("photo");
-					String like = rs.getString("like");
-					String hate = rs.getString("hate");
-					String text = rs.getString("text");
-					int numbervisit = rs.getInt("numbervisit");
-
-					customer = new Customer(customer_id, name, mobilephone, phone, birthday, age,
-							photo, like, hate, text, numbervisit);
-				}
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
+			customer = new Customer(customer_id, name, mobilephone, phone, birthday, age,
+					photo, like, hate, text, numbervisit);
 		}
 
+		rs.close();
+		pstmt.close();
+
 		return customer;
+
 	}
 
-	public Customer phoneRead(String inputPhone) {
+	public Customer phoneRead(String inputPhone) throws SQLException {
 
-		if(inputPhone.equals("")) {
+		if (inputPhone == null) {
+			return null;
+		}
+
+		if (inputPhone.equals("")) {
 			return null;
 		}
 
 		Customer customer = null;
 
-		try (
+		PreparedStatement pstmt = connection
+				.prepareStatement("SELECT * FROM customers WHERE phone=?");
+		pstmt.setString(1, inputPhone);
 
-				PreparedStatement pstmt = connection
-						.prepareStatement("SELECT * FROM customers WHERE mobilephone=?");) {
-			pstmt.setString(1, inputPhone);
+		ResultSet rs = pstmt.executeQuery();
+		if (rs.next()) {
 
-			try (
+			int customer_id = rs.getInt("customer_id");
+			String name = rs.getString("name");
+			String mobilephone = rs.getString("mobilephone");
+			String phone = rs.getString("phone");
+			Date birthday = rs.getTimestamp("birthday");
+			int age = rs.getInt("age");
+			String photo = rs.getString("photo");
+			String like = rs.getString("likefood");
+			String hate = rs.getString("hatefood");
+			String text = rs.getString("memo");
+			int numbervisit = rs.getInt("numbervisit");
 
-					ResultSet rs = pstmt.executeQuery();) {
-
-				if (rs.next()) {
-
-					int customer_id = rs.getInt("customer_id");
-					String name = rs.getString("name");
-					String mobilephone = rs.getString("mobilephone");
-					String phone = rs.getString("phone");
-					Date birthday = rs.getTimestamp("birthday");
-					int age = rs.getInt("age");
-					String photo = rs.getString("photo");
-					String like = rs.getString("like");
-					String hate = rs.getString("hate");
-					String text = rs.getString("text");
-					int numbervisit = rs.getInt("numbervisit");
-
-					customer = new Customer(customer_id, name, mobilephone, phone, birthday, age,
-							photo, like, hate, text, numbervisit);
-				}
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
+			customer = new Customer(customer_id, name, mobilephone, phone, birthday, age,
+					photo, like, hate, text, numbervisit);
 		}
+
+		rs.close();
+		pstmt.close();
 
 		return customer;
 	}
 
-	public ArrayList<Customer> nameRead(String inputName) {
+	public ArrayList<Customer> nameRead(String inputName) throws SQLException {
+
 
 		ArrayList<Customer> lists = new ArrayList<>();
 
-		try (
-
-				PreparedStatement pstmt = connection
-						.prepareStatement("SELECT * FROM customers WHERE name=? ORDER BY numbervisit DESC");) {
-			pstmt.setString(1, inputName);
-			try (
-
-					ResultSet rs = pstmt.executeQuery();) {
-
-				while (rs.next()) {
-
-					int customer_id = rs.getInt("customer_id");
-					String name = rs.getString("name");
-					String mobilephone = rs.getString("mobilephone");
-					String phone = rs.getString("phone");
-					Date birthday = rs.getTimestamp("birthday");
-					int age = rs.getInt("age");
-					String photo = rs.getString("photo");
-					String like = rs.getString("like");
-					String hate = rs.getString("hate");
-					String text = rs.getString("text");
-					int numbervisit = rs.getInt("numbervisit");
-
-					Customer customer = new Customer(customer_id, name, mobilephone, phone, birthday, age,
-							photo, like, hate, text, numbervisit);
-					lists.add(customer);
-				}
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
+		if (inputName == null || inputName.equals("")) {
+			return lists;
 		}
+
+		PreparedStatement pstmt = connection
+				.prepareStatement("SELECT * FROM customers WHERE name=? ORDER BY numbervisit DESC");
+		pstmt.setString(1, inputName);
+
+		ResultSet rs = pstmt.executeQuery();
+
+		while (rs.next()) {
+
+			int customer_id = rs.getInt("customer_id");
+			String name = rs.getString("name");
+			String mobilephone = rs.getString("mobilephone");
+			String phone = rs.getString("phone");
+			Date birthday = rs.getTimestamp("birthday");
+			int age = rs.getInt("age");
+			String photo = rs.getString("photo");
+			String like = rs.getString("likefood");
+			String hate = rs.getString("hatefood");
+			String text = rs.getString("memo");
+			int numbervisit = rs.getInt("numbervisit");
+
+			Customer customer = new Customer(customer_id, name, mobilephone, phone, birthday, age,
+					photo, like, hate, text, numbervisit);
+			lists.add(customer);
+		}
+		rs.close();
+		pstmt.close();
 
 		return lists;
 
 	}
 
-	public ArrayList<Customer> allRead() {
+	public ArrayList<Customer> allRead() throws SQLException {
 
 		ArrayList<Customer> lists = new ArrayList<>();
 
-		try (
+		PreparedStatement pstmt = connection
+				.prepareStatement("SELECT * FROM customers ORDER BY numbervisit DESC");
 
-				PreparedStatement pstmt = connection
-						.prepareStatement("SELECT * FROM customers ORDER BY numbervisit DESC");) {
-			try (
+		ResultSet rs = pstmt.executeQuery();
 
-					ResultSet rs = pstmt.executeQuery();) {
+		while (rs.next()) {
 
-				while (rs.next()) {
+			int customer_id = rs.getInt("customer_id");
+			String name = rs.getString("name");
+			String mobilephone = rs.getString("mobilephone");
+			String phone = rs.getString("phone");
+			Date birthday = rs.getTimestamp("birthday");
+			int age = rs.getInt("age");
+			String photo = rs.getString("photo");
+			String like = rs.getString("likefood");
+			String hate = rs.getString("hatefood");
+			String text = rs.getString("memo");
+			int numbervisit = rs.getInt("numbervisit");
 
-					int customer_id = rs.getInt("customer_id");
-					String name = rs.getString("name");
-					String mobilephone = rs.getString("mobilephone");
-					String phone = rs.getString("phone");
-					Date birthday = rs.getTimestamp("birthday");
-					int age = rs.getInt("age");
-					String photo = rs.getString("photo");
-					String like = rs.getString("like");
-					String hate = rs.getString("hate");
-					String text = rs.getString("text");
-					int numbervisit = rs.getInt("numbervisit");
-
-					Customer customer = new Customer(customer_id, name, mobilephone, phone, birthday, age,
-							photo, like, hate, text, numbervisit);
-					lists.add(customer);
-				}
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
+			Customer customer = new Customer(customer_id, name, mobilephone, phone, birthday, age,
+					photo, like, hate, text, numbervisit);
+			lists.add(customer);
 		}
+		rs.close();
+		pstmt.close();
 
 		return lists;
+
+	}
+
+	public Customer customerRead(int inputCustomer_id) throws SQLException {
+
+		Customer customer = null;
+
+		PreparedStatement pstmt = connection
+				.prepareStatement("SELECT * FROM customers WHERE customer_id=?");
+		pstmt.setInt(1, inputCustomer_id);
+
+		ResultSet rs = pstmt.executeQuery();
+		if (rs.next()) {
+
+			int customer_id = rs.getInt("customer_id");
+			String name = rs.getString("name");
+			String mobilephone = rs.getString("mobilephone");
+			String phone = rs.getString("phone");
+			Date birthday = rs.getTimestamp("birthday");
+			int age = rs.getInt("age");
+			String photo = rs.getString("photo");
+			String like = rs.getString("likefood");
+			String hate = rs.getString("hatefood");
+			String text = rs.getString("memo");
+			int numbervisit = rs.getInt("numbervisit");
+
+			customer = new Customer(customer_id, name, mobilephone, phone, birthday, age,
+					photo, like, hate, text, numbervisit);
+		}
+
+		rs.close();
+		pstmt.close();
+
+		return customer;
 
 	}
 
 	public void update(int customers_id, String name, String mobilephone, String phone, Date birthday, int age,
-			String photo, String like, String hate, String text, int numbervisit) {
+			String photo, String likefood, String hatefood, String memo, int numbervisit) throws SQLException {
 
-		try (
-				PreparedStatement pstmt = connection.prepareStatement(
-						"UPDATE customers SET name=?,mobilephone=?,phone=?,birthday=?,"
-								+ "age=?,photo=?,like=?,hate=?,text=?,numbervisit=? WHERE customer_id=?");) {
+		PreparedStatement pstmt = connection.prepareStatement(
+				"UPDATE customers SET name=?,mobilephone=?,phone=?,birthday=?,"
+						+ "age=?,photo=?,likefood=?,hatefood=?,memo=?,numbervisit=? WHERE customer_id=?");
 
-			pstmt.setString(1, name);
-			pstmt.setString(2, mobilephone);
-			pstmt.setString(3, phone);
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		pstmt.setString(1, name);
+		pstmt.setString(2, mobilephone);
+		pstmt.setString(3, phone);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		if (birthday == null) {
+			pstmt.setString(4, "1800-01-01");
+		} else {
 			pstmt.setString(4, sdf.format(birthday));
-			pstmt.setInt(5, age);
-			pstmt.setString(6, photo);
-			pstmt.setString(7, like);
-			pstmt.setString(8, hate);
-			pstmt.setString(9, text);
-			pstmt.setInt(10, numbervisit);
-			pstmt.setInt(11, customers_id);
-			pstmt.executeUpdate();
-			System.out.println("データの更新に成功しました。");
-
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
+		pstmt.setInt(5, age);
+		pstmt.setString(6, photo);
+		pstmt.setString(7, likefood);
+		pstmt.setString(8, hatefood);
+		pstmt.setString(9, memo);
+		pstmt.setInt(10, numbervisit);
+		pstmt.setInt(11, customers_id);
+		pstmt.executeUpdate();
+		System.out.println("customerデータの更新に成功しました。");
 
+		pstmt.close();
+	}
+
+	public void delete(int customer_id) throws SQLException {
+
+		PreparedStatement pstmt = connection.prepareStatement(
+				"DELETE FROM customers WHERE customer_id=?");
+
+		pstmt.setInt(1, customer_id);
+		pstmt.executeUpdate();
+		System.out.println("customer_idの削除に成功しました。");
+
+		pstmt.close();
 	}
 
 }

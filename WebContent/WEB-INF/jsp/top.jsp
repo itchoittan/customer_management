@@ -62,10 +62,10 @@
                 op('visit.html');
             });
             document.getElementById('bt_name').addEventListener('click', function () {
-                op('name.html');
+                op('./name');
             });
             document.getElementById('bt_phone').addEventListener('click', function () {
-                op('phone.html');
+                op('./phone');
             });
             document.getElementById('bt_popularfood').addEventListener('click', function () {
                 op('popularfood.html');

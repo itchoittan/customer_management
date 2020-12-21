@@ -9,14 +9,11 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 public abstract class DbAccess {
-	protected Connection connection;
 
-	public DbAccess() {
-		getConnection();
-	}
+	protected static Connection connection;
 
 	//DBとの接続を行う
-	private void getConnection() {
+	public static void getConnection() {
 
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
@@ -42,15 +39,33 @@ public abstract class DbAccess {
 	}
 
 	//DBのクローズを行う
-	public void close() {
-		if (this.connection != null) {
+	public static void close() {
+		if (connection != null) {
 			try {
 
-				this.connection.close();
+				connection.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public static void setAutoCommit() throws SQLException {
+
+		connection.setAutoCommit(false);
+
+	}
+
+	public static void commit() throws SQLException {
+
+		connection.commit();
+
+	}
+
+	public static void rollback() throws SQLException {
+
+		connection.rollback();
+
 	}
 
 }

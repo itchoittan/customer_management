@@ -15,8 +15,8 @@ public class Customer implements Serializable{
 	private Date birthday;
 	private int age;
 	private String photo;
-	private String like;
-	private String hate;
+	private String likefood;
+	private String hatefood;
 	private String text;
 	private int numbervisit;
 
@@ -24,7 +24,7 @@ public class Customer implements Serializable{
 
 
 	public Customer(int customers_id, String name, String mobilephone, String phone, Date birthday, int age,
-			String photo, String like, String hate, String text, int numbervisit) {
+			String photo, String likefood, String hatefood, String text, int numbervisit) {
 		this.customers_id = customers_id;
 		this.name = name;
 		this.mobilephone = mobilephone;
@@ -32,8 +32,8 @@ public class Customer implements Serializable{
 		this.birthday = birthday;
 		this.age = age;
 		this.photo = photo;
-		this.like = like;
-		this.hate = hate;
+		this.likefood = likefood;
+		this.hatefood = hatefood;
 		this.text = text;
 		this.numbervisit = numbervisit;
 	}
@@ -67,12 +67,12 @@ public class Customer implements Serializable{
 		return photo;
 	}
 
-	public String getLike() {
-		return like;
+	public String getLikefood() {
+		return likefood;
 	}
 
-	public String getHate() {
-		return hate;
+	public String getHatefood() {
+		return hatefood;
 	}
 
 	public String getText() {

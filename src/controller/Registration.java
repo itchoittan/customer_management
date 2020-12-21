@@ -28,16 +28,16 @@ import model.FoodsTable;
 import model.MessagesTable;
 
 /**
- * Servlet implementation class Input
+ * Servlet implementation class Registration
  */
-@WebServlet("/input")
-public class Input extends HttpServlet {
+@WebServlet("/registration")
+public class Registration extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	/**
 	 * @see HttpServlet#HttpServlet()
 	 */
-	public Input() {
+	public Registration() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
@@ -49,22 +49,7 @@ public class Input extends HttpServlet {
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		request.setCharacterEncoding("UTF-8");
-
-		DbAccess.getConnection();
-		FoodPricesTable fpt = new FoodPricesTable();
-		ArrayList<FoodPrice> foodlist = fpt.allRead();
-
-		DrinkPricesTable dpt = new DrinkPricesTable();
-		ArrayList<DrinkPrice> drinklist = dpt.allRead();
-		DbAccess.close();
-
-		Date orderdate = new Date();
-		request.setAttribute("foodlist", foodlist);
-		request.setAttribute("drinklist", drinklist);
-		request.setAttribute("orderdate", orderdate);
-
-		request.getRequestDispatcher("/WEB-INF/jsp/input.jsp").forward(request, response);
-
+		response.sendRedirect("./input");
 	}
 
 	/**
@@ -73,11 +58,17 @@ public class Input extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
-
 		request.setCharacterEncoding("UTF-8");
 
 		ArrayList<String> errors = new ArrayList<>();
 
+		String str_customer_id = request.getParameter("customer_id");
+		int customer_id = 0;
+		try {
+			customer_id = Integer.parseInt(str_customer_id);
+		} catch (Exception e) {
+			errors.add("想定外のエラーが発生しました。システム管理者に相談してください:customer_id取得エラー");
+		}
 		String name = request.getParameter("name");
 		String mobilephone = request.getParameter("mobilephone");
 		if (mobilephone.equals("")) {
@@ -112,7 +103,8 @@ public class Input extends HttpServlet {
 		String[] str_food_quantitys = request.getParameterValues("food_quantity");
 		String[] str_drink_price_ids = request.getParameterValues("drink_price_id");
 		String[] str_drink_quantitys = request.getParameterValues("drink_quantity");
-		String message = request.getParameter("message");
+		String[] messages = request.getParameterValues("message");
+		String[] str_message_ids = request.getParameterValues("message");
 
 		Date orderdate;
 		try {
@@ -189,78 +181,53 @@ public class Input extends HttpServlet {
 			}
 		}
 
-		if (food_price_ids == null && drink_price_ids == null) {
-			errors.add("料理かドリンクどちらかを選択してください");
+		int[] message_ids = null;
+		if (str_message_ids != null) {
+			message_ids = new int[str_message_ids.length];
+			for (int i = 0; i < str_message_ids.length; i++) {
+				try {
+					message_ids[i] = Integer.parseInt(str_message_ids[i]);
+				} catch (NumberFormatException e) {
+					errors.add("システムエラー:message_id");
+					break;
+				}
+			}
 		}
 
-		int customer_id = 0;
+		if (messages != null && message_ids != null) {
+			if (messages.length != message_ids.length) {
+				errors.add("システムエラー:message.lengthエラー");
+			}
+		}
+
 		if (errors.size() == 0) {
 			DbAccess.getConnection();
 			try {
 				DbAccess.setAutoCommit();
 
 				CustomersTable customersTable = new CustomersTable();
-				//mobilephoneRead()にてインスタンスしているcustomerをcustomerに入れる
-				Customer customer1 = customersTable.mobilephoneRead(mobilephone);
+				customersTable.update(customer_id, name, mobilephone, phone, birthday, age,
+						photo, likefood, hatefood, memo, numbervisit);
 
-				Customer customer2 = customersTable.phoneRead(phone);
-
-				if (customer1 == null && customer2 == null) {
-					customer_id = customersTable.customersInsert(name, mobilephone, phone, birthday, age, photo,
-							likefood,
-							hatefood, memo, numbervisit);
-				} else if (customer1 != null && customer2 == null) {
-					customersTable.update(customer1.getCustomers_id(), name, mobilephone, phone, birthday, age, photo,
-							likefood, hatefood, memo, customer1.getNumbervisit() + 1);
-					customer_id = customer1.getCustomers_id();
-				} else if (customer1 == null && customer2 != null) {
-					customersTable.update(customer2.getCustomers_id(), name, mobilephone, phone, birthday, age, photo,
-							likefood, hatefood, memo, customer2.getNumbervisit() + 1);
-					customer_id = customer2.getCustomers_id();
-				} else if (customer1 != null && customer2 != null) {
-
-					if (customer1.getCustomers_id() == customer2.getCustomers_id()) {
-						customersTable.update(customer1.getCustomers_id(), name, mobilephone, phone, birthday, age,
-								photo,
-								likefood, hatefood, memo, customer1.getNumbervisit() + 1);
-						customer_id = customer1.getCustomers_id();
-					} else {
-						customersTable.delete(customer1.getCustomers_id());
-						customersTable.delete(customer2.getCustomers_id());
-
-						customer_id = customersTable.customersInsert(name, mobilephone, phone, birthday, age, photo,
-								likefood, hatefood, memo, numbervisit);
-
-						FoodsTable ft = new FoodsTable();
-						ft.customerIdUpdate(customer1.getCustomers_id(), customer_id);
-						ft.customerIdUpdate(customer2.getCustomers_id(), customer_id);
-						DrinksTable dt = new DrinksTable();
-						dt.customerIdUpdate(customer1.getCustomers_id(), customer_id);
-						dt.customerIdUpdate(customer2.getCustomers_id(), customer_id);
-						MessagesTable mt = new MessagesTable();
-						mt.customerIdUpdate(customer1.getCustomers_id(), customer_id);
-						mt.customerIdUpdate(customer2.getCustomers_id(), customer_id);
+				if (food_price_ids != null) {
+					FoodsTable foodsTable = new FoodsTable();
+					for (int i = 0; i < food_price_ids.length; i++) {
+						foodsTable.foodInsert(customer_id, food_price_ids[i], orderdate, food_quantitys[i]);
 					}
 				}
 
-				if (customer_id != 0) {
-
-					if (food_price_ids != null) {
-						FoodsTable foodsTable = new FoodsTable();
-						for (int i = 0; i < food_price_ids.length; i++) {
-							foodsTable.foodInsert(customer_id, food_price_ids[i], orderdate, food_quantitys[i]);
-						}
+				if (drink_price_ids != null) {
+					DrinksTable drinksTable = new DrinksTable();
+					for (int i = 0; i < drink_price_ids.length; i++) {
+						drinksTable.drinkInsert(customer_id, drink_price_ids[i], orderdate, drink_quantitys[i]);
 					}
-
-					if (drink_price_ids != null) {
-						DrinksTable drinksTable = new DrinksTable();
-						for (int i = 0; i < drink_price_ids.length; i++) {
-							drinksTable.drinkInsert(customer_id, drink_price_ids[i], orderdate, drink_quantitys[i]);
-						}
-					}
-					MessagesTable messagesTable = new MessagesTable();
-					messagesTable.messageInsert(customer_id, message, orderdate);
 				}
+
+				MessagesTable mt = new MessagesTable();
+				for (int i = 0; i < messages.length; i++) {
+					mt.update(message_ids[i], customer_id, messages[i], orderdate);
+				}
+
 				DbAccess.commit();
 
 			} catch (Exception e) {
@@ -279,46 +246,60 @@ public class Input extends HttpServlet {
 			DbAccess.close();
 		}
 
-		if (errors.size() == 0 && customer_id != 0) {
-			try {
+		for(int i = 0; i < errors.size(); i++) {
 
-				DbAccess.getConnection();
-				Customer customer = new CustomersTable().customerRead(customer_id);
-				ArrayList<Food> foodregistration = new FoodsTable().newDateRead(customer_id);
-				ArrayList<Drink> drinkregistration = new DrinksTable().newDateRead(customer_id);
-				ArrayList<Message> messagelist = new MessagesTable().messageRead(customer_id);
+			System.out.println(errors.get(i));
+		}
+		//		Customer customer = new Customer(customer_id, name, mobilephone, phone, birthday, age,
+		//				photo, likefood, hatefood, memo, numbervisit);
 
-				FoodPricesTable fpt = new FoodPricesTable();
-				ArrayList<FoodPrice> foodlist = fpt.allRead();
+		//		ArrayList<Food> foodregistration = null;
+		//		ArrayList<Drink> drinkregistration = null;
+		//		ArrayList<Message> messagelist = null;
+		//		if (errors.size() == 0) {
+		try {
 
-				DrinkPricesTable dpt = new DrinkPricesTable();
-				ArrayList<DrinkPrice> drinklist = dpt.allRead();
-				DbAccess.close();
+			DbAccess.getConnection();
+			Customer customer = new CustomersTable().customerRead(customer_id);
+			ArrayList<Food> foodregistration = new FoodsTable().newDateRead(customer_id);
+			ArrayList<Drink> drinkregistration = new DrinksTable().newDateRead(customer_id);
+			ArrayList<Message> messagelist = new MessagesTable().messageRead(customer_id);
 
-				request.setAttribute("customer", customer);
-				request.setAttribute("foodregistration", foodregistration);
-				request.setAttribute("drinkregistration", drinkregistration);
-				request.setAttribute("messagelist", messagelist);
-				request.setAttribute("orderdate", orderdate);
-				request.setAttribute("foodlist", foodlist);
-				request.setAttribute("drinklist", drinklist);
-				request.getRequestDispatcher("/WEB-INF/jsp/registration.jsp").forward(request, response);
+			FoodPricesTable fpt = new FoodPricesTable();
+			ArrayList<FoodPrice> foodlist = fpt.allRead();
 
-			} catch (Exception e) {
-				System.out.println("登録後のDBReadでエラーが出ました");
-				e.printStackTrace();
-				errors.add("登録時に想定外のエラーが出ましたので、システム管理者に相談してください:Db読み込みエラー");
+			DrinkPricesTable dpt = new DrinkPricesTable();
+			ArrayList<DrinkPrice> drinklist = dpt.allRead();
 
-				request.setAttribute("errormessage", errors);
-				doGet(request, response);
-				//ここに入るとエラーなのにデータベースに書き込まれる
-			}
-		} else {
+			DbAccess.close();
 
+			request.setAttribute("customer", customer);
+			request.setAttribute("foodregistration", foodregistration);
+			request.setAttribute("drinkregistration", drinkregistration);
+			request.setAttribute("messagelist", messagelist);
+			request.setAttribute("orderdate", orderdate);
+			request.setAttribute("foodlist", foodlist);
+			request.setAttribute("drinklist", drinklist);
+			request.setAttribute("errormessage", errors);;
+			request.getRequestDispatcher("/WEB-INF/jsp/registration.jsp").forward(request, response);
+
+		} catch (Exception e) {
+			System.out.println("登録後のDBReadでエラーが出ました");
+			e.printStackTrace();
+			errors.add("登録時に想定外のエラーが出ましたので、システム管理者に相談してください:Db読み込みエラー");
 			request.setAttribute("errormessage", errors);
-			doGet(request, response);
+
+			request.getRequestDispatcher("/WEB-INF/jsp/registration.jsp").forward(request, response);
 
 		}
+		//		} else {
+		//
+		//			request.setAttribute("errormessage", errors);
+		//
+		//
+		//			doGet(request, response);
+		//
+		//		}
 
 	}
 
