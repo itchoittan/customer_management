@@ -8,10 +8,12 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 
 import bean.Customer;
 import bean.Drink;
@@ -31,6 +33,7 @@ import model.MessagesTable;
  * Servlet implementation class Input
  */
 @WebServlet("/input")
+@MultipartConfig(location="/img")
 public class Input extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -78,6 +81,9 @@ public class Input extends HttpServlet {
 
 		ArrayList<String> errors = new ArrayList<>();
 
+		Part part = request.getPart("image_file");
+		String photo = this.getFileName(part);
+
 		String name = request.getParameter("name");
 		String mobilephone = request.getParameter("mobilephone");
 		if (mobilephone.equals("")) {
@@ -103,7 +109,6 @@ public class Input extends HttpServlet {
 			age = 0;
 		}
 
-		String photo = request.getParameter("photo");
 		String likefood = request.getParameter("likefood");
 		String hatefood = request.getParameter("hatefood");
 		String memo = request.getParameter("memo");
@@ -225,6 +230,7 @@ public class Input extends HttpServlet {
 								likefood, hatefood, memo, customer1.getNumbervisit() + 1);
 						customer_id = customer1.getCustomers_id();
 					} else {
+						numbervisit = customer1.getNumbervisit() + customer2.getNumbervisit() + 1;
 						customersTable.delete(customer1.getCustomers_id());
 						customersTable.delete(customer2.getCustomers_id());
 
@@ -281,6 +287,12 @@ public class Input extends HttpServlet {
 
 		if (errors.size() == 0 && customer_id != 0) {
 			try {
+				if (photo != null) {
+//					String uploadDir = getServletContext().getRealPath("/img/") + customer_id + "/";
+					String uploadDir = "img/" + customer_id + "/";
+//					part.write(uploadDir + photo);
+					part.write(photo);
+				}
 
 				DbAccess.getConnection();
 				Customer customer = new CustomersTable().customerRead(customer_id);
@@ -320,6 +332,18 @@ public class Input extends HttpServlet {
 
 		}
 
+	}
+
+	private String getFileName(Part part) {
+		String name = null;
+		for (String dispotion : part.getHeader("Content-Disposition").split(";")) {
+			if (dispotion.trim().startsWith("filename")) {
+				name = dispotion.substring(dispotion.indexOf("=") + 1).replace("\"", "").trim();
+				name = name.substring(name.lastIndexOf("\\") + 1);
+				break;
+			}
+		}
+		return name;
 	}
 
 }

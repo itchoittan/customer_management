@@ -90,8 +90,12 @@ public class Registration extends HttpServlet {
 		int age;
 		try {
 			age = Integer.parseInt(request.getParameter("age"));
+			if(age < 0 ) {
+				errors.add("年齢は正の整数を入力してください");
+			}
 		} catch (NumberFormatException e) {
 			age = 0;
+			errors.add("年齢は数字を入力してください");
 		}
 
 		String photo = request.getParameter("photo");
@@ -104,7 +108,7 @@ public class Registration extends HttpServlet {
 		String[] str_drink_price_ids = request.getParameterValues("drink_price_id");
 		String[] str_drink_quantitys = request.getParameterValues("drink_quantity");
 		String[] messages = request.getParameterValues("message");
-		String[] str_message_ids = request.getParameterValues("message");
+		String[] str_message_ids = request.getParameterValues("message_id");
 
 		Date orderdate;
 		try {
@@ -198,6 +202,24 @@ public class Registration extends HttpServlet {
 			if (messages.length != message_ids.length) {
 				errors.add("システムエラー:message.lengthエラー");
 			}
+		}
+
+		try {
+			DbAccess.getConnection();
+			Customer customer = new CustomersTable().mobilephoneRead(mobilephone);
+			if(customer != null && customer.getCustomers_id() != customer_id) {
+				errors.add("入力された携帯番号は登録済です。");
+			}
+			customer = new CustomersTable().phoneRead(phone);
+			if(customer != null && customer.getCustomers_id() != customer_id) {
+				errors.add("入力された固定電話は登録済です。");
+			}
+
+		}catch(Exception e){
+			errors.add("登録時に想定外のエラーが出ましたので、システム管理者に相談してください:電話番号読み込みエラー");
+
+		}finally {
+			DbAccess.close();
 		}
 
 		if (errors.size() == 0) {

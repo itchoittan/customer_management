@@ -24,7 +24,6 @@ String orderdateD = sdfD.format(orderdate);
 <meta charset="UTF-8">
 
 <style>
-
 style>img {
 	width: 80%;
 	height: auto;
@@ -126,11 +125,11 @@ textarea:disabled {
 	margin-bottom: 20px;
 }
 
-.nameneed{
-text-indent: 1em;
-font-size: 12px;
-color: #ff0000;
-margin-left: 15px;
+.nameneed {
+	text-indent: 1em;
+	font-size: 12px;
+	color: #ff0000;
+	margin-left: 15px;
 }
 
 .privacy2 {
@@ -215,9 +214,13 @@ margin-left: 15px;
 	top: 4px;
 }
 
-
 .underline {
 	background: linear-gradient(transparent 70%, #ffa3d1 70%);
+}
+
+#my_image{
+width:100px;
+height:100px;
 }
 </style>
 <script
@@ -269,6 +272,19 @@ margin-left: 15px;
         drink_stocks = [];
 
         window.onload = function () {
+
+
+        	document.getElementById('image_file').addEventListener('change', function(e){
+        		const file = document.getElementById('image_file').files[0];
+        		let reader = new FileReader();
+        		reader.addEventListener('load', function() {
+        			document.getElementById('my_image').src = reader.result;
+        		});
+        		if(file) {
+        			reader.readAsDataURL(file);
+        		}
+        	});
+
             const sel_food = document.getElementById('sel_food');
             for (let i = 0; i < foods.length; i++) {
                 const op = document.createElement('option');
@@ -331,7 +347,7 @@ margin-left: 15px;
 </head>
 
 <body>
-	<form method="post" class="large_block">
+	<form method="post" class="large_block" enctype="multipart/form-data">
 		<div class="customer">
 			<div class="error">
 				<%
@@ -348,20 +364,22 @@ margin-left: 15px;
 
 			</div>
 			<div class="privacy">
-				<div id="slideshow">
-					<img class="mainView active" src="pasta.jpg" alt="パスタ料理"
-						title="パスタ料理"> <img class="mainView" src="kawara_soba.jpg">
-					<img class="mainView" src="oyakodon.jpg">
-					<!-- <label><input type="file" accept="image/*"></label> -->
+				<div>
+
+					<img id="my_image">
+
+					<label>画像ファイル</label><input type="file"
+						id="image_file" accept="image/*" name="image_file">
 				</div>
 
 				<div class="privacy2">
-					<label>名前<span class="nameneed">※入力必須項目</span><input type="text" name="name" placeholder="カタカナ"></label>
-					<label>携帯番号<input type="tel" name="mobilephone"
-						pattern="[0-9]{3}[0-9]{4}[0-9]{4}" placeholder="09012345678"></label>
-					<label>固定電話<input type="tel" name="phone"
-						pattern="[0-9]{4}[0-9]{2}[0-9]{4}" placeholder="0666447777"></label>
-					<label>誕生日<input type="date" name="birthday"></label> <label>年齢<input
+					<label>名前<span class="nameneed">※入力必須項目</span><input
+						type="text" name="name" placeholder="カタカナ"></label> <label>携帯番号<input
+						type="tel" name="mobilephone" pattern="[0-9]{3}[0-9]{4}[0-9]{4}"
+						placeholder="09012345678"></label> <label>固定電話<input
+						type="tel" name="phone" pattern="[0-9]{4}[0-9]{2}[0-9]{4}"
+						placeholder="0666447777"></label> <label>誕生日<input
+						type="date" name="birthday"></label> <label>年齢<input
 						type="text" name="age" placeholder="だいたいの年齢"></label> <label>来店回数<input
 						type="number" name="numbervisit"></label>
 				</div>

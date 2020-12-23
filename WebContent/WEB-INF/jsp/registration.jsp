@@ -8,6 +8,10 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%
 	Customer customer = (Customer) request.getAttribute("customer");
+String photo = "./img/sample.jpg";
+if(customer.getPhoto() != null){
+	photo = "./img/" + customer.getCustomers_id() + "/" + customer.getPhoto();
+}
 
 String mobilephone = "";
 if (customer.getMobilephone() != null)
@@ -28,7 +32,7 @@ for (int i = 0; i < messagelist.size(); i++) {
 */
 ArrayList<FoodPrice> foodlist = (ArrayList<FoodPrice>) request.getAttribute("foodlist");
 ArrayList<DrinkPrice> drinklist = (ArrayList<DrinkPrice>) request.getAttribute("drinklist");
-ArrayList<String> errormessages = (ArrayList<String>) request.getAttribute("errormessage");
+ArrayList<String> errormessage = (ArrayList<String>) request.getAttribute("errormessage");
 
 Date orderdate = (Date) request.getAttribute("orderdate");
 SimpleDateFormat sdfY = new SimpleDateFormat("yyyy");
@@ -37,6 +41,17 @@ SimpleDateFormat sdfD = new SimpleDateFormat("dd");
 String orderdateY = sdfY.format(orderdate);
 String orderdateM = sdfM.format(orderdate);
 String orderdateD = sdfD.format(orderdate);
+
+SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+String birthday = sdf.format(customer.getBirthday());
+
+int totalprice = 0;
+for (int i = 0; i < foodregistration.size(); i++) {
+	totalprice += foodregistration.get(i).getFoodprice() * foodregistration.get(i).getQuantity();
+}
+for (int i = 0; i < drinkregistration.size(); i++) {
+	totalprice += drinkregistration.get(i).getDrinkprice() * drinkregistration.get(i).getQuantity();
+}
 %>
 
 
@@ -313,6 +328,12 @@ textarea:disabled {
 
 
         window.onload = function () {
+
+        	const base_totalprice = <%=totalprice%>;
+        	document.getElementById('totalprice').value = base_totalprice;
+        	let food_totalprice = 0;
+        	let drink_totalprice = 0;
+
             const sel_food = document.getElementById('sel_food');
             for (let i = 0; i < foods.length; i++) {
                 const op = document.createElement('option');
@@ -320,8 +341,8 @@ textarea:disabled {
                 op.innerHTML = foods[i].food;
                 sel_food.appendChild(op);
                 food_stocks[foods[i].id] = 0;
-
             }
+
             document.getElementById('bt_food').addEventListener('click', function () {
 
                 let idx = sel_food.selectedIndex;
@@ -329,6 +350,7 @@ textarea:disabled {
                 food_stocks[food_price_id] += 1;
                 const tf = document.getElementById("table_food");
                 tf.innerHTML = "";
+                let additional_totalprice =0;
                 foods.forEach(v => {
                     if (food_stocks[v.id] !== 0) {
                         const tr = document.createElement('tr');
@@ -337,8 +359,11 @@ textarea:disabled {
                         td += '<td>' + food_stocks[v.id] * parseInt(v.price) + '<input type="hidden" name="food_price_id" value="' + v.id + '"><input type = "hidden" name = "food_quantity" value = "' + food_stocks[v.id] + '" ></td>';
                         tr.innerHTML = td;
                         tf.appendChild(tr);
+                        additional_totalprice +=food_stocks[v.id] * parseInt(v.price);
                     }
                 });
+                food_totalprice = additional_totalprice;
+                document.getElementById('totalprice').value = base_totalprice + food_totalprice + drink_totalprice;
             });
 
             const sel_drink = document.getElementById('sel_drink');
@@ -357,6 +382,7 @@ textarea:disabled {
                 drink_stocks[drink_price_id] += 1;
                 const tf = document.getElementById("table_drink");
                 tf.innerHTML = "";
+                let additional_totalprice =0;
                 drinks.forEach(v => {
                     if (drink_stocks[v.id] !== 0) {
                         const tr = document.createElement('tr');
@@ -365,9 +391,14 @@ textarea:disabled {
                         td += '<td>' + drink_stocks[v.id] * parseInt(v.price) + '<input type="hidden" name="drink_price_id" value="' + v.id + '"><input type = "hidden" name = "drink_quantity" value = "' + drink_stocks[v.id] + '" ></td>';
                         tr.innerHTML = td;
                         tf.appendChild(tr);
+                        additional_totalprice += drink_stocks[v.id] * parseInt(v.price);
                     }
                 });
+                drink_totalprice = additional_totalprice;
+                document.getElementById('totalprice').value = base_totalprice + food_totalprice + drink_totalprice;
             });
+
+
 
 
             let input_item = document.getElementById('all_area').getElementsByTagName('input');
@@ -403,13 +434,15 @@ textarea:disabled {
 <body>
 
 	<form method="post" class="large_block" id="all_area"
-		action="./registration">
+		action="./registration" enctype="multipart/form-data">
 		<div class="customer">
 			<div class="error">
+
+
 				<%
-					if (errormessages != null) {
+					if (errormessage != null) {
 				%>
-				<c:forEach var="error" items="${errormessages}">
+				<c:forEach var="error" items="${errormessage}">
 					<p>
 						<c:out value="${error}" />
 					</p>
@@ -420,11 +453,12 @@ textarea:disabled {
 
 			</div>
 			<div class="privacy">
-				<div id="slideshow">
-					<img class="mainView active" src="pasta.jpg" alt="パスタ料理"
-						title="パスタ料理"> <img class="mainView" src="kawara_soba.jpg">
-					<img class="mainView" src="oyakodon.jpg">
-					<!-- <label><input type="file" accept="image/*"></label> -->
+				<div>
+
+					<img id="my_image"  src="<%=photo%>">
+
+					<label>画像ファイル</label><input type="file"
+						id="image_file" accept="image/*" name="image_file">
 				</div>
 
 				<div class="privacy2">
@@ -436,8 +470,8 @@ textarea:disabled {
 						pattern="[0-9]{3}[0-9]{4}[0-9]{4}" value="<%=mobilephone%>"><label>固定電話</label><input
 						type="tel" name="phone" pattern="[0-9]{4}[0-9]{2}[0-9]{4}"
 						value="<%=phone%>"><label>誕生日</label><input type="date"
-						name="birthday" value="<%=customer.getBirthday()%>"><label>年齢</label><input
-						type="text" name="age" placeholder="だいたいの年齢"
+						name="birthday" value="<%=birthday%>"><label>年齢</label><input
+						type="number" name="age" placeholder="だいたいの年齢"
 						value="<%=customer.getAge()%>"><label>来店回数</label><input
 						type="number" name="numbervisit"
 						value="<%=customer.getNumbervisit()%>">
@@ -517,7 +551,7 @@ textarea:disabled {
 			</div>
 
 			<div>
-				<label>当日単価:<input type="number" value=""></label>
+				<label>当日単価:</label><input type="number" id="totalprice">
 			</div>
 
 			<div>
