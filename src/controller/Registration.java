@@ -1,5 +1,6 @@
 package controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -8,10 +9,12 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 
 import bean.Customer;
 import bean.Drink;
@@ -31,6 +34,7 @@ import model.MessagesTable;
  * Servlet implementation class Registration
  */
 @WebServlet("/registration")
+@MultipartConfig(location = "/tmp")
 public class Registration extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -69,6 +73,15 @@ public class Registration extends HttpServlet {
 		} catch (Exception e) {
 			errors.add("想定外のエラーが発生しました。システム管理者に相談してください:customer_id取得エラー");
 		}
+
+		String photo = request.getParameter("photo");
+		Part part = request.getPart("image_file");
+		if (part != null) {
+			if (!this.getFileName(part).equals("")) {
+				photo = customer_id + "." + this.getFileName(part);
+			}
+		}
+
 		String name = request.getParameter("name");
 		String mobilephone = request.getParameter("mobilephone");
 		if (mobilephone.equals("")) {
@@ -90,7 +103,7 @@ public class Registration extends HttpServlet {
 		int age;
 		try {
 			age = Integer.parseInt(request.getParameter("age"));
-			if(age < 0 ) {
+			if (age < 0) {
 				errors.add("年齢は正の整数を入力してください");
 			}
 		} catch (NumberFormatException e) {
@@ -98,7 +111,6 @@ public class Registration extends HttpServlet {
 			errors.add("年齢は数字を入力してください");
 		}
 
-		String photo = request.getParameter("photo");
 		String likefood = request.getParameter("likefood");
 		String hatefood = request.getParameter("hatefood");
 		String memo = request.getParameter("memo");
@@ -207,24 +219,29 @@ public class Registration extends HttpServlet {
 		try {
 			DbAccess.getConnection();
 			Customer customer = new CustomersTable().mobilephoneRead(mobilephone);
-			if(customer != null && customer.getCustomers_id() != customer_id) {
+			if (customer != null && customer.getCustomers_id() != customer_id) {
 				errors.add("入力された携帯番号は登録済です。");
 			}
 			customer = new CustomersTable().phoneRead(phone);
-			if(customer != null && customer.getCustomers_id() != customer_id) {
+			if (customer != null && customer.getCustomers_id() != customer_id) {
 				errors.add("入力された固定電話は登録済です。");
 			}
 
-		}catch(Exception e){
+		} catch (Exception e) {
 			errors.add("登録時に想定外のエラーが出ましたので、システム管理者に相談してください:電話番号読み込みエラー");
 
-		}finally {
+		} finally {
 			DbAccess.close();
 		}
 
 		if (errors.size() == 0) {
 			DbAccess.getConnection();
 			try {
+				if (photo != null && !photo.equals("")) {
+					String uploadDir = getServletContext().getRealPath("/img") + File.separator;
+					part.write(uploadDir + photo);
+				}
+
 				DbAccess.setAutoCommit();
 
 				CustomersTable customersTable = new CustomersTable();
@@ -268,7 +285,7 @@ public class Registration extends HttpServlet {
 			DbAccess.close();
 		}
 
-		for(int i = 0; i < errors.size(); i++) {
+		for (int i = 0; i < errors.size(); i++) {
 
 			System.out.println(errors.get(i));
 		}
@@ -302,7 +319,8 @@ public class Registration extends HttpServlet {
 			request.setAttribute("orderdate", orderdate);
 			request.setAttribute("foodlist", foodlist);
 			request.setAttribute("drinklist", drinklist);
-			request.setAttribute("errormessage", errors);;
+			request.setAttribute("errormessage", errors);
+			;
 			request.getRequestDispatcher("/WEB-INF/jsp/registration.jsp").forward(request, response);
 
 		} catch (Exception e) {
@@ -323,6 +341,18 @@ public class Registration extends HttpServlet {
 		//
 		//		}
 
+	}
+
+	private String getFileName(Part part) {
+		String name = null;
+		for (String dispotion : part.getHeader("Content-Disposition").split(";")) {
+			if (dispotion.trim().startsWith("filename")) {
+				name = dispotion.substring(dispotion.indexOf("=") + 1).replace("\"", "").trim();
+				name = name.substring(name.lastIndexOf("\\") + 1);
+				break;
+			}
+		}
+		return name;
 	}
 
 }

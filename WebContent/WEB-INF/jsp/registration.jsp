@@ -9,8 +9,8 @@
 <%
 	Customer customer = (Customer) request.getAttribute("customer");
 String photo = "./img/sample.jpg";
-if(customer.getPhoto() != null){
-	photo = "./img/" + customer.getCustomers_id() + "/" + customer.getPhoto();
+if (!customer.getPhoto().equals("")) {
+	photo = "./img/" + customer.getPhoto();
 }
 
 String mobilephone = "";
@@ -259,6 +259,11 @@ textarea:disabled {
 .underline {
 	background: linear-gradient(transparent 70%, #ffa3d1 70%);
 }
+
+#my_image {
+	width: 100px;
+	height: 100px;
+}
 </style>
 <script
 	src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -328,6 +333,17 @@ textarea:disabled {
 
 
         window.onload = function () {
+
+        	document.getElementById('image_file').addEventListener('change', function(e){
+        		const file = document.getElementById('image_file').files[0];
+        		let reader = new FileReader();
+        		reader.addEventListener('load', function() {
+        			document.getElementById('my_image').src = reader.result;
+        		});
+        		if(file) {
+        			reader.readAsDataURL(file);
+        		}
+        	});
 
         	const base_totalprice = <%=totalprice%>;
         	document.getElementById('totalprice').value = base_totalprice;
@@ -455,9 +471,9 @@ textarea:disabled {
 			<div class="privacy">
 				<div>
 
-					<img id="my_image"  src="<%=photo%>">
-
-					<label>画像ファイル</label><input type="file"
+					<img id="my_image" src="<%=photo%>">
+					<input type="hidden" name="photo" value="<%=customer.getPhoto()%>"> <label>画像ファイル</label>
+					<input type="file"
 						id="image_file" accept="image/*" name="image_file">
 				</div>
 

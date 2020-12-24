@@ -273,6 +273,19 @@ public class CustomersTable extends DbAccess {
 		pstmt.close();
 	}
 
+	public void photoUpdate(int customers_id, String photo) throws SQLException {
+
+		PreparedStatement pstmt = connection.prepareStatement(
+				"UPDATE customers SET photo=? WHERE customer_id=?");
+
+		pstmt.setString(1, photo);
+		pstmt.setInt(2, customers_id);
+		pstmt.executeUpdate();
+		System.out.println("photoデータの更新に成功しました。");
+
+		pstmt.close();
+	}
+
 	public void delete(int customer_id) throws SQLException {
 
 		PreparedStatement pstmt = connection.prepareStatement(

@@ -1,5 +1,6 @@
 package controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -33,7 +34,7 @@ import model.MessagesTable;
  * Servlet implementation class Input
  */
 @WebServlet("/input")
-@MultipartConfig(location="/img")
+@MultipartConfig(location = "/tmp")
 public class Input extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -214,6 +215,7 @@ public class Input extends HttpServlet {
 					customer_id = customersTable.customersInsert(name, mobilephone, phone, birthday, age, photo,
 							likefood,
 							hatefood, memo, numbervisit);
+
 				} else if (customer1 != null && customer2 == null) {
 					customersTable.update(customer1.getCustomers_id(), name, mobilephone, phone, birthday, age, photo,
 							likefood, hatefood, memo, customer1.getNumbervisit() + 1);
@@ -266,6 +268,11 @@ public class Input extends HttpServlet {
 					}
 					MessagesTable messagesTable = new MessagesTable();
 					messagesTable.messageInsert(customer_id, message, orderdate);
+
+					if (photo != null && !photo.equals("")) {
+						photo = customer_id + "." + photo;
+						customersTable.photoUpdate(customer_id, photo);
+					}
 				}
 				DbAccess.commit();
 
@@ -287,13 +294,10 @@ public class Input extends HttpServlet {
 
 		if (errors.size() == 0 && customer_id != 0) {
 			try {
-				if (photo != null) {
-//					String uploadDir = getServletContext().getRealPath("/img/") + customer_id + "/";
-					String uploadDir = "img/" + customer_id + "/";
-//					part.write(uploadDir + photo);
-					part.write(photo);
+				if (photo != null && !photo.equals("")) {
+					String uploadDir = getServletContext().getRealPath("/img") + File.separator;
+					part.write(uploadDir + photo);
 				}
-
 				DbAccess.getConnection();
 				Customer customer = new CustomersTable().customerRead(customer_id);
 				ArrayList<Food> foodregistration = new FoodsTable().newDateRead(customer_id);
