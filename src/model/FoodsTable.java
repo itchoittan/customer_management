@@ -50,7 +50,7 @@ public class FoodsTable extends DbAccess {
 
 		PreparedStatement pstmt = connection
 				.prepareStatement(
-						"SELECT food,foodprice,SUM(foodprice*quantity) AS sumprice, SUM(quantity) AS sumquantity FROM foods JOIN foods_prices ON foods.food_price_id=food_prices.food_price_id WHERE orderdate>=? AND orderdate<=? GROUP BY foods.food_price_id ORDER BY sumquantity DESC ");
+						"SELECT food,foodprice,SUM(foodprice*quantity) AS sumprice, SUM(quantity) AS sumquantity FROM foods JOIN food_prices ON foods.food_price_id=food_prices.food_price_id WHERE orderdate>=? AND orderdate<=? GROUP BY foods.food_price_id ORDER BY sumquantity DESC ,sumprice DESC ");
 		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-01");
 		SimpleDateFormat sdf31 = new SimpleDateFormat("yyyy-MM-31");
 		pstmt.setString(1, sdf1.format(inputOrderdate));

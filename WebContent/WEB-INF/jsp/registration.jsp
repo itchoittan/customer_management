@@ -125,7 +125,12 @@ textarea:disabled {
 .error {
 	text-align: center;
 	font-size: 24px;
-	color: #0000ff;
+	color: #ffffff;
+}
+
+.error span {
+	background-color: #ff0000;
+	padding: 5px;
 }
 
 .customer {
@@ -221,15 +226,15 @@ textarea:disabled {
 	width: 100%;
 }
 
-.menu>input {
+.menu input {
 	width: 100px;
 	height: 40px;
 	cursor: pointer;
-	font-size: 16px border: 1px solid #ff7f00;
-	box-shadow: 4px 4px 4px #ff7f00;
+	border: 1px solid #ffa3d1;
+	box-shadow: 4px 4px 4px #ffa3d1;
 }
 
-.menu>input:active {
+.menu input:active {
 	box-shadow: none;
 	position: relative;
 	top: 4px;
@@ -460,7 +465,7 @@ textarea:disabled {
 				%>
 				<c:forEach var="error" items="${errormessage}">
 					<p>
-						<c:out value="${error}" />
+						<span><c:out value="${error}" /></span>
 					</p>
 				</c:forEach>
 				<%
@@ -471,10 +476,10 @@ textarea:disabled {
 			<div class="privacy">
 				<div>
 
-					<img id="my_image" src="<%=photo%>">
-					<input type="hidden" name="photo" value="<%=customer.getPhoto()%>"> <label>画像ファイル</label>
-					<input type="file"
-						id="image_file" accept="image/*" name="image_file">
+					<img id="my_image" src="<%=photo%>"> <input type="hidden"
+						name="photo" value="<%=customer.getPhoto()%>"> <label>画像ファイル</label>
+					<input type="file" id="image_file" accept="image/*"
+						name="image_file">
 				</div>
 
 				<div class="privacy2">

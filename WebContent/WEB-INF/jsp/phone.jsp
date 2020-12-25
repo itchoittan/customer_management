@@ -40,9 +40,6 @@ if(errormessage == null){
         }
 
         .registration {
-            display: flex;
-            justify-content: flex-end;
-            width: 87%;
             padding: 20px;
 
         }
@@ -64,9 +61,16 @@ if(errormessage == null){
             top: 4px;
         }
 
-        .error {
+       .error {
+            text-align: center;
             font-size: 24px;
-            color: #0000ff;
+            color: #ffffff;
+        }
+
+        .error span {
+            background-color: #ff0000;
+            padding: 5px;
+
         }
     </style>
 
@@ -95,7 +99,13 @@ if(errormessage == null){
             </form>
             <!-- if文で判定後 -->
             <div class="error">
-                <p><%=errormessage%></p>
+            <%
+					if (errormessage != null && !errormessage.equals("")) {
+				%>
+                 <p><span><%=errormessage%></span></p>
+				<%
+					}
+				%>
             </div>
 
         </div>

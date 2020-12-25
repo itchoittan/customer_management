@@ -83,7 +83,12 @@ textarea:disabled {
 .error {
 	text-align: center;
 	font-size: 24px;
-	color: #0000ff;
+	color: #ffffff;
+}
+
+.error span {
+	background-color: #ff0000;
+	padding: 5px;
 }
 
 .customer {
@@ -179,15 +184,15 @@ textarea:disabled {
 	width: 100%;
 }
 
-.menu>input {
+.menu input {
 	width: 100px;
 	height: 40px;
 	cursor: pointer;
-	font-size: 16px border: 1px solid #ff7f00;
-	box-shadow: 4px 4px 4px #ff7f00;
+	border: 1px solid #ffa3d1;
+	box-shadow: 4px 4px 4px #ffa3d1;
 }
 
-.menu>input:active {
+.menu input:active {
 	box-shadow: none;
 	position: relative;
 	top: 4px;
@@ -218,9 +223,9 @@ textarea:disabled {
 	background: linear-gradient(transparent 70%, #ffa3d1 70%);
 }
 
-#my_image{
-width:100px;
-height:100px;
+#my_image {
+	width: 100px;
+	height: 100px;
 }
 </style>
 <script
@@ -355,7 +360,7 @@ height:100px;
 				%>
 				<c:forEach var="error" items="${errormessage}">
 					<p>
-						<c:out value="${error}" />
+						<span><c:out value="${error}" /></span>
 					</p>
 				</c:forEach>
 				<%
@@ -366,9 +371,7 @@ height:100px;
 			<div class="privacy">
 				<div>
 
-					<img id="my_image">
-
-					<label>画像ファイル</label><input type="file"
+					<img id="my_image"> <label>画像ファイル</label><input type="file"
 						id="image_file" accept="image/*" name="image_file">
 				</div>
 

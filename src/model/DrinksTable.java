@@ -49,7 +49,7 @@ public class DrinksTable extends DbAccess {
 
 		PreparedStatement pstmt = connection
 				.prepareStatement(
-						"SELECT drink,drinkprice,SUM(drinkprice*quantity) AS sumprice, SUM(quantity) AS sumquantity FROM drinks JOIN drink_prices ON drinks.drink_price_id=drink_prices.drink_price_id WHERE orderdate>=? AND orderdate<=? GROUP BY drinks.drink_price_id ORDER BY sumquantity DESC ");
+						"SELECT drink,drinkprice,SUM(drinkprice*quantity) AS sumprice, SUM(quantity) AS sumquantity FROM drinks JOIN drink_prices ON drinks.drink_price_id=drink_prices.drink_price_id WHERE orderdate>=? AND orderdate<=? GROUP BY drinks.drink_price_id ORDER BY sumquantity DESC ,sumprice DESC ");
 		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-01");
 		SimpleDateFormat sdf31 = new SimpleDateFormat("yyyy-MM-31");
 		pstmt.setString(1, sdf1.format(inputOrderdate));

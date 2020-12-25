@@ -59,7 +59,7 @@
                 op('./input');
             });
             document.getElementById('bt_visit').addEventListener('click', function () {
-                op('visit.html');
+                op('./visit');
             });
             document.getElementById('bt_name').addEventListener('click', function () {
                 op('./name');
@@ -68,10 +68,10 @@
                 op('./phone');
             });
             document.getElementById('bt_popularfood').addEventListener('click', function () {
-                op('popularfood.html');
+                op('./popularfood');
             });
             document.getElementById('bt_populardrink').addEventListener('click', function () {
-                op('populardrink.html');
+                op('./populardrink');
             });
 
         }
@@ -99,9 +99,9 @@
 
 		<tr>
 			<td><input class="left" type="button" id="bt_popularfood"
-				value="人気メニュー検索">
+				value="料理ランキング">
 			<td><input class="right" type="button" id="bt_populardrink"
-				value="人気ドリンク検索">
+				value="ドリンクランキング">
 		</tr>
 
 	</table>

@@ -181,13 +181,14 @@ public class CustomersTable extends DbAccess {
 		ArrayList<Customer> lists = new ArrayList<>();
 
 		PreparedStatement pstmt = connection
-				.prepareStatement("SELECT * FROM customers ORDER BY numbervisit DESC");
+				.prepareStatement("SELECT customers.customer_id,name,mobilephone,phone,birthday,age,photo,likefood,hatefood,memo,numbervisit,MAX(orderdate) AS max_orderdate FROM customers JOIN messages ON customers.customer_id=messages.customer_id GROUP BY messages.customer_id ORDER BY numbervisit DESC,max_orderdate DESC;");
 
 		ResultSet rs = pstmt.executeQuery();
 
 		while (rs.next()) {
 
-			int customer_id = rs.getInt("customer_id");
+
+			int customer_id = rs.getInt("customers.customer_id");
 			String name = rs.getString("name");
 			String mobilephone = rs.getString("mobilephone");
 			String phone = rs.getString("phone");

@@ -13,13 +13,19 @@ public class Insert {
 	public static void main(String[] args) {
 
 		getConnection();
-		foodInsert("オムライス",890);
-		foodInsert("カレーライス",1000);
-		foodInsert("ハヤシライス",950);
-		drinkInsert("オレンジジュース",200);
-		drinkInsert("りんごジュース",200);
-		drinkInsert("カルピス",220);
-		drinkInsert("ウーロン茶",180);
+//		foodInsert("オムライス",890);
+//		foodInsert("カレーライス",1000);
+//		foodInsert("ハヤシライス",950);
+//		drinkInsert("オレンジジュース",200);
+//		drinkInsert("りんごジュース",200);
+//		drinkInsert("カルピス",220);
+//		drinkInsert("ウーロン茶",180);
+//		foodInsert("ランチ",700);
+//		foodInsert("うどん",400);
+//		foodInsert("そば",500);
+		drinkInsert("おいしいみず",100);
+		drinkInsert("コーラ",200);
+		drinkInsert("ミックスジュース",300);
 		close();
 
 	}

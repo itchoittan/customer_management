@@ -7,19 +7,14 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
     <%
-	ArrayList<Customer> customers = (ArrayList<Customer>) request.getAttribute("customers");
-ArrayList<Date> orderdates = (ArrayList<Date>) request.getAttribute("orderdates");
+	ArrayList<PopularOrder> popularfoods = (ArrayList<PopularOrder>) request.getAttribute("popularOrder");
+
 String errormessage = (String) request.getAttribute("errormessage");
 if (errormessage == null) {
 	errormessage = "";
 }
 
-SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
-ArrayList<String> visitdates = new ArrayList<>();
-for (int i = 0; i < orderdates.size(); i++) {
-	String orderdate = sdf.format(orderdates.get(i));
-	visitdates.add(orderdate);
-}
+
 %>
 
 
@@ -71,7 +66,6 @@ for (int i = 0; i < orderdates.size(); i++) {
             width: 25%;
             height: 100%;
             padding: 10px;
-            cursor: pointer;
             text-align: center;
             border-top: solid 1px #c1c1c1;
             border-bottom: solid 1px #c1c1c1;
@@ -105,7 +99,7 @@ window.onload =function(){
 </script>
 
 
-<title>来店回数一覧</title>
+<title>料理ランキング</title>
 </head>
 <body>
 
@@ -113,27 +107,21 @@ window.onload =function(){
 
         <table id="visit_table">
 			<tr>
-				<th>名前</th>
-				<th>携帯番号</th>
-				<th>固定電話番号</th>
-				<th>来店回数</th>
-				<th>前回来店日</th>
+				<th>料理名</th>
+				<th>当月注文回数</th>
+				<th>金額</th>
+				<th>合計売上金額</th>
 			</tr>
 
 			<%
-				for (int i = 0; i < customers.size(); i++) {
+				for (int i = 0; i < popularfoods.size(); i++) {
 			%>
 
 			<tr>
-				<td><%=customers.get(i).getName()%></td>
-				<td><%=(customers.get(i).getMobilephone() == null ? "" : customers.get(i).getMobilephone())%></td>
-				<td><%=(customers.get(i).getPhone() == null ? "" : customers.get(i).getPhone())%></td>
-				<td><%=customers.get(i).getNumbervisit()%></td>
-				<td><%=visitdates.get(i)%>
-					<form method="POST" id="form_<%=i + 1%>">
-						<input type="hidden" name="customer_id"
-							value="<%=customers.get(i).getCustomers_id()%>">
-					</form></td>
+				<td><%=popularfoods.get(i).getOrder_id()%></td>
+				<td><%=popularfoods.get(i).getSumquantity()%></td>
+				<td><%=popularfoods.get(i).getOrder_price()%></td>
+				<td><%=popularfoods.get(i).getSumprice()%></td>
 
 			</tr>
 			<%

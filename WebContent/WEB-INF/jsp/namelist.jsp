@@ -68,6 +68,7 @@ td {
 	width: 25%;
 	height: 100%;
 	padding: 10px;
+	cursor: pointer;
 	text-align: center;
 	border-top: solid 1px #c1c1c1;
 	border-bottom: solid 1px #c1c1c1;
