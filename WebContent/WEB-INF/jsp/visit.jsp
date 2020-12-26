@@ -10,6 +10,12 @@
 	ArrayList<Customer> customers = (ArrayList<Customer>) request.getAttribute("customers");
 ArrayList<Date> orderdates = (ArrayList<Date>) request.getAttribute("orderdates");
 String errormessage = (String) request.getAttribute("errormessage");
+if (customers == null) {
+	customers = new ArrayList<Customer>();
+}
+if (orderdates == null) {
+	orderdates = new ArrayList<Date>();
+}
 if (errormessage == null) {
 	errormessage = "";
 }

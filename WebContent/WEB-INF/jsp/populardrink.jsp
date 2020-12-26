@@ -10,11 +10,13 @@
 	ArrayList<PopularOrder> populardrinks = (ArrayList<PopularOrder>) request.getAttribute("popularOrder");
 
 String errormessage = (String) request.getAttribute("errormessage");
+if (populardrinks == null) {
+	populardrinks = new ArrayList<PopularOrder>();
+}
+
 if (errormessage == null) {
 	errormessage = "";
 }
-
-
 %>
 
 
