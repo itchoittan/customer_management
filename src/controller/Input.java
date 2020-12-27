@@ -300,9 +300,11 @@ public class Input extends HttpServlet {
 				}
 				DbAccess.getConnection();
 				Customer customer = new CustomersTable().customerRead(customer_id);
-				ArrayList<Food> foodregistration = new FoodsTable().newDateRead(customer_id);
-				ArrayList<Drink> drinkregistration = new DrinksTable().newDateRead(customer_id);
 				ArrayList<Message> messagelist = new MessagesTable().messageRead(customer_id);
+				orderdate = messagelist.get(0).getOrderdate();
+				String str_orderdate = sdf.format(orderdate);
+				ArrayList<Food> foodregistration = new FoodsTable().dateRead(customer_id,str_orderdate);
+				ArrayList<Drink> drinkregistration = new DrinksTable().dateRead(customer_id, str_orderdate);
 
 				FoodPricesTable fpt = new FoodPricesTable();
 				ArrayList<FoodPrice> foodlist = fpt.allRead();

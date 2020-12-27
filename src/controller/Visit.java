@@ -1,6 +1,7 @@
 package controller;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -119,16 +120,18 @@ public class Visit extends HttpServlet {
 
 			if (customer != null) {
 
-				foodregistration = new FoodsTable().newDateRead(customer_id);
-				drinkregistration = new DrinksTable().newDateRead(customer_id);
 				messagelist = new MessagesTable().messageRead(customer_id);
+				orderdate = messagelist.get(0).getOrderdate();
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				String str_orderdate = sdf.format(orderdate);
+				foodregistration = new FoodsTable().dateRead(customer_id,str_orderdate);
+				drinkregistration = new DrinksTable().dateRead(customer_id, str_orderdate);
 
 				FoodPricesTable fpt = new FoodPricesTable();
 				foodlist = fpt.allRead();
 
 				DrinkPricesTable dpt = new DrinkPricesTable();
 				drinklist = dpt.allRead();
-				orderdate = messagelist.get(0).getOrderdate();
 
 				visit_dates = new MessagesTable().getVisitDates(customer_id);
 

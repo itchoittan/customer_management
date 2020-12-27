@@ -67,7 +67,6 @@ public class Registration extends HttpServlet {
 
 		String action = request.getParameter("action");
 
-		System.out.println(action);
 		if (action.equals("change_date")) {
 			changeDate(request, response, errors);
 		} else {
@@ -83,8 +82,6 @@ public class Registration extends HttpServlet {
 		String str_customer_id = request.getParameter("customer_id");
 		String change_date = request.getParameter("change_date");
 		Customer customer = null;
-System.out.println(str_customer_id);
-System.out.println(change_date);
 		ArrayList<Food> foodregistration = null;
 		ArrayList<Drink> drinkregistration = null;
 		ArrayList<Message> messagelist = null;
@@ -133,7 +130,6 @@ System.out.println(change_date);
 			DbAccess.close();
 		}
 		if (errors.size() == 0) {
-			System.out.println("えらーなし");
 			request.setAttribute("customer", customer);
 			request.setAttribute("foodregistration", foodregistration);
 			request.setAttribute("drinkregistration", drinkregistration);
@@ -217,9 +213,10 @@ System.out.println(change_date);
 		String[] messages = request.getParameterValues("message");
 		String[] str_message_ids = request.getParameterValues("message_id");
 
+		String str_orderdate = request.getParameter("orderdate");
 		Date orderdate;
 		try {
-			orderdate = sdf.parse(request.getParameter("orderdate"));
+			orderdate = sdf.parse(str_orderdate);
 		} catch (ParseException e) {
 			orderdate = new Date();
 		}
@@ -389,10 +386,11 @@ System.out.println(change_date);
 
 			DbAccess.getConnection();
 			Customer customer = new CustomersTable().customerRead(customer_id);
-			ArrayList<Food> foodregistration = new FoodsTable().newDateRead(customer_id);
-			ArrayList<Drink> drinkregistration = new DrinksTable().newDateRead(customer_id);
-			ArrayList<Message> messagelist = new MessagesTable().messageRead(customer_id);
-
+			ArrayList<Food> foodregistration = new FoodsTable().dateRead(customer_id,str_orderdate);
+			ArrayList<Drink> drinkregistration = new DrinksTable().dateRead(customer_id,str_orderdate);
+			ArrayList<Message> messagelist = new MessagesTable().dateMessageRead(customer_id,str_orderdate);
+System.out.println(str_orderdate);
+System.out.println(foodregistration.get(0).getOrderdate());
 			FoodPricesTable fpt = new FoodPricesTable();
 			ArrayList<FoodPrice> foodlist = fpt.allRead();
 

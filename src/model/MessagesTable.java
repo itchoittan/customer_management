@@ -74,7 +74,7 @@ public class MessagesTable extends DbAccess {
 		ArrayList<Date> dates = new ArrayList<>();
 
 		PreparedStatement pstmt = connection
-				.prepareStatement("SELECT * FROM messages WHERE customer_id=? GROUP BY orderdate");
+				.prepareStatement("SELECT * FROM messages WHERE customer_id=? GROUP BY orderdate ORDER BY orderdate ASC");
 
 		pstmt.setInt(1, inputCustomer_id);
 

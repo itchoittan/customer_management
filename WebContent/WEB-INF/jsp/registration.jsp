@@ -480,8 +480,9 @@ document.getElementById('bt_change_date').addEventListener('click',function(){
             	select_item[i].disabled = true;
             }
             document.getElementById('bt_change').disabled = false;
+            document.getElementById('select_change_date').disabled = false;
+            document.getElementById('bt_change_date').disabled = false;
             document.getElementById('bt_change').addEventListener('click',func_bt_change);
-
 
         }
 
