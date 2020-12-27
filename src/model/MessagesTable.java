@@ -41,6 +41,57 @@ public class MessagesTable extends DbAccess {
 		return autoIncrementKey;
 	}
 
+	public ArrayList<Message> dateMessageRead(int inputCustomer_id, String date) throws SQLException {
+
+		ArrayList<Message> msges = new ArrayList<>();
+
+		PreparedStatement pstmt = connection
+				.prepareStatement("SELECT * FROM messages WHERE customer_id=? AND orderdate=?");
+
+		pstmt.setInt(1, inputCustomer_id);
+		pstmt.setString(2, date);
+
+		ResultSet rs = pstmt.executeQuery();
+
+		while (rs.next()) {
+
+			int message_id = rs.getInt("message_id");
+			int customer_id = rs.getInt("customer_id");
+			String message = rs.getString("message");
+			Date orderdate = rs.getTimestamp("orderdate");
+
+			Message msg = new Message(message_id, customer_id, message, orderdate);
+			msges.add(msg);
+		}
+		rs.close();
+		pstmt.close();
+
+		return msges;
+	}
+
+	public ArrayList<Date> getVisitDates(int inputCustomer_id) throws SQLException {
+
+		ArrayList<Date> dates = new ArrayList<>();
+
+		PreparedStatement pstmt = connection
+				.prepareStatement("SELECT * FROM messages WHERE customer_id=? GROUP BY orderdate");
+
+		pstmt.setInt(1, inputCustomer_id);
+
+		ResultSet rs = pstmt.executeQuery();
+
+		while (rs.next()) {
+
+			Date orderdate = rs.getTimestamp("orderdate");
+
+			dates.add(orderdate);
+		}
+		rs.close();
+		pstmt.close();
+
+		return dates;
+	}
+
 	public ArrayList<Message> messageRead(int inputCustomer_id) throws SQLException {
 
 		ArrayList<Message> msges = new ArrayList<>();

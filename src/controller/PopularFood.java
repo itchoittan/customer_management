@@ -78,6 +78,9 @@ public class PopularFood extends HttpServlet {
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		request.setCharacterEncoding("UTF-8");
+
+
+
 		doGet(request, response);
 	}
 

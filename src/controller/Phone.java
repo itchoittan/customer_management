@@ -68,6 +68,7 @@ public class Phone extends HttpServlet {
 		ArrayList<FoodPrice> foodlist = null;
 		ArrayList<DrinkPrice> drinklist = null;
 		Date orderdate = null;
+		ArrayList<Date> visit_dates = null;
 
 		try {
 			DbAccess.getConnection();
@@ -89,6 +90,7 @@ public class Phone extends HttpServlet {
 				drinklist = dpt.allRead();
 				orderdate = messagelist.get(0).getOrderdate();
 
+				visit_dates = new MessagesTable().getVisitDates(customer.getCustomers_id());
 			} else {
 				error = "入力された電話番号はデータにありませんでした。";
 			}
@@ -109,6 +111,7 @@ public class Phone extends HttpServlet {
 			request.setAttribute("orderdate", orderdate);
 			request.setAttribute("foodlist", foodlist);
 			request.setAttribute("drinklist", drinklist);
+			request.setAttribute("visit_dates", visit_dates);
 			request.getRequestDispatcher("/WEB-INF/jsp/registration.jsp").forward(request, response);
 
 		} else {

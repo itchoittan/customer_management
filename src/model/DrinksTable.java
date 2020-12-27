@@ -73,6 +73,36 @@ public class DrinksTable extends DbAccess {
 		return lists;
 	}
 
+	public ArrayList<Drink> dateRead(int inputCustomer_id, String date) throws SQLException {
+
+		ArrayList<Drink> lists = new ArrayList<>();
+
+		PreparedStatement pstmt = connection
+				.prepareStatement(
+						"SELECT * FROM drinks JOIN drink_prices ON drinks.drink_price_id=drink_prices.drink_price_id WHERE customer_id=? AND orderdate=?");
+		pstmt.setInt(1, inputCustomer_id);
+		pstmt.setString(2, date);
+		ResultSet rs = pstmt.executeQuery();
+
+		while (rs.next()) {
+
+			int drink_id = rs.getInt("drinks.drink_id");
+			int customer_id = rs.getInt("customer_id");
+			String drink = rs.getString("drink");
+			int drinkprice = rs.getInt("drinkprice");
+			Date orderdate = rs.getTimestamp("orderdate");
+			int quantity = rs.getInt("quantity");
+
+			Drink drinks = new Drink(drink_id, customer_id, drink, drinkprice, orderdate, quantity);
+			lists.add(drinks);
+		}
+		rs.close();
+		pstmt.close();
+
+		return lists;
+	}
+
+
 	public ArrayList<Drink> newDateRead(int inputCustomer_id) throws SQLException {
 
 		ArrayList<Drink> lists = new ArrayList<>();

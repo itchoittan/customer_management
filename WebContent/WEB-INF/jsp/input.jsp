@@ -16,6 +16,8 @@ SimpleDateFormat sdfD = new SimpleDateFormat("dd");
 String orderdateY = sdfY.format(orderdate);
 String orderdateM = sdfM.format(orderdate);
 String orderdateD = sdfD.format(orderdate);
+
+int totalprice = 0;
 %>
 
 <!DOCTYPE html>
@@ -178,10 +180,22 @@ textarea:disabled {
 	padding: 20px;
 }
 
-.visit>div>textarea {
+.visit textarea {
 	font-size: 16px;
 	line-height: 1.4em;
 	width: 100%;
+}
+
+.visit textarea:focus {
+	border: 1px solid #ffa3d1;
+	box-shadow: 4px 4px 4px #ffa3d1;
+	outline: 0;
+}
+
+#totalprice:focus{
+	border: 1px solid #ffa3d1;
+	box-shadow: 4px 4px 4px #ffa3d1;
+	outline: 0;
 }
 
 .menu input {
@@ -290,6 +304,11 @@ textarea:disabled {
         		}
         	});
 
+        	const base_totalprice = <%=totalprice%>;
+        	document.getElementById('totalprice').value = base_totalprice;
+        	let food_totalprice = 0;
+        	let drink_totalprice = 0;
+
             const sel_food = document.getElementById('sel_food');
             for (let i = 0; i < foods.length; i++) {
                 const op = document.createElement('option');
@@ -297,8 +316,8 @@ textarea:disabled {
                 op.innerHTML = foods[i].food;
                 sel_food.appendChild(op);
                 food_stocks[foods[i].id] = 0;
-
             }
+
             document.getElementById('bt_food').addEventListener('click', function () {
 
                 let idx = sel_food.selectedIndex;
@@ -306,6 +325,7 @@ textarea:disabled {
                 food_stocks[food_price_id] += 1;
                 const tf = document.getElementById("table_food");
                 tf.innerHTML = "";
+                let additional_totalprice =0;
                 foods.forEach(v => {
                     if (food_stocks[v.id] !== 0) {
                         const tr = document.createElement('tr');
@@ -314,8 +334,11 @@ textarea:disabled {
                         td += '<td>' + food_stocks[v.id] * parseInt(v.price) + '<input type="hidden" name="food_price_id" value="' + v.id + '"><input type = "hidden" name = "food_quantity" value = "' + food_stocks[v.id] + '" ></td>';
                         tr.innerHTML = td;
                         tf.appendChild(tr);
+                        additional_totalprice +=food_stocks[v.id] * parseInt(v.price);
                     }
                 });
+                food_totalprice = additional_totalprice;
+                document.getElementById('totalprice').value = base_totalprice + food_totalprice + drink_totalprice;
             });
 
             const sel_drink = document.getElementById('sel_drink');
@@ -334,6 +357,7 @@ textarea:disabled {
                 drink_stocks[drink_price_id] += 1;
                 const tf = document.getElementById("table_drink");
                 tf.innerHTML = "";
+                let additional_totalprice =0;
                 drinks.forEach(v => {
                     if (drink_stocks[v.id] !== 0) {
                         const tr = document.createElement('tr');
@@ -342,9 +366,13 @@ textarea:disabled {
                         td += '<td>' + drink_stocks[v.id] * parseInt(v.price) + '<input type="hidden" name="drink_price_id" value="' + v.id + '"><input type = "hidden" name = "drink_quantity" value = "' + drink_stocks[v.id] + '" ></td>';
                         tr.innerHTML = td;
                         tf.appendChild(tr);
+                        additional_totalprice += drink_stocks[v.id] * parseInt(v.price);
                     }
                 });
+                drink_totalprice = additional_totalprice;
+                document.getElementById('totalprice').value = base_totalprice + food_totalprice + drink_totalprice;
             });
+
         }
 
     </script>
@@ -376,15 +404,18 @@ textarea:disabled {
 				</div>
 
 				<div class="privacy2">
-					<label>名前<span class="nameneed">※入力必須項目</span><input
-						type="text" name="name" placeholder="カタカナ"></label> <label>携帯番号<input
+					<label>名前<span class="nameneed">※入力必須項目</span></label> <input
+						type="text" name="name" placeholder="カタカナ">
+						 <label>携帯番号</label> <input
 						type="tel" name="mobilephone" pattern="[0-9]{3}[0-9]{4}[0-9]{4}"
-						placeholder="09012345678"></label> <label>固定電話<input
+						placeholder="09012345678">
+						<label>固定電話</label> <input
 						type="tel" name="phone" pattern="[0-9]{4}[0-9]{2}[0-9]{4}"
-						placeholder="0666447777"></label> <label>誕生日<input
-						type="date" name="birthday"></label> <label>年齢<input
-						type="text" name="age" placeholder="だいたいの年齢"></label> <label>来店回数<input
-						type="number" name="numbervisit"></label>
+						placeholder="0666447777">
+						<label>誕生日</label> <input
+						type="date" name="birthday">
+						<label>年齢</label> <input
+						type="text" name="age" placeholder="だいたいの年齢">
 				</div>
 				<!-- 画像は切り替わるよりスライドショーが良いかもしれない
 名前か電話番号が登録されていないと登録ボタンを押せないようにする -->
@@ -399,7 +430,7 @@ textarea:disabled {
                     readonlyを入れると書き換えを禁止 -->
 				<label>嫌いなもの（料理・ドリンク等）</label>
 				<textarea name="hatefood" id="" cols="30" rows="4"></textarea>
-				<label>○○様全般メモ（接客時の注意事項や共有すること）</label>
+				<label>全般メモ（接客時の注意事項や共有すること）</label>
 				<textarea name="memo" id="" cols="30" rows="4"></textarea>
 			</div>
 		</div>
@@ -435,7 +466,7 @@ textarea:disabled {
 			</div>
 
 			<div>
-				<label>当日単価:<input type="number"></label>
+				<label>当日単価:</label><input type="number" id="totalprice" disabled>
 			</div>
 
 			<div>

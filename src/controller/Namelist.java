@@ -69,6 +69,7 @@ public class Namelist extends HttpServlet {
 		ArrayList<FoodPrice> foodlist = null;
 		ArrayList<DrinkPrice> drinklist = null;
 		Date orderdate = null;
+		ArrayList<Date> visit_dates = null;
 
 		try {
 
@@ -89,6 +90,8 @@ public class Namelist extends HttpServlet {
 				drinklist = dpt.allRead();
 				orderdate = messagelist.get(0).getOrderdate();
 
+				visit_dates = new MessagesTable().getVisitDates(customer_id);
+
 			} else {
 				System.out.println("顧客情報検索時にシステムエラーが出ました");
 				error = "顧客情報検索時にエラーがでました。システム管理者に相談してください:customer_id読み込みエラー";
@@ -98,7 +101,6 @@ public class Namelist extends HttpServlet {
 			System.out.println("顧客情報検索時にシステムエラーが出ました");
 			e.printStackTrace();
 			error = "顧客情報検索時に想定外のエラーが出ましたので、システム管理者に相談してください:customer_id読み込みエラー";
-
 
 		} finally {
 			DbAccess.close();
@@ -111,6 +113,7 @@ public class Namelist extends HttpServlet {
 			request.setAttribute("orderdate", orderdate);
 			request.setAttribute("foodlist", foodlist);
 			request.setAttribute("drinklist", drinklist);
+			request.setAttribute("visit_dates", visit_dates);
 			request.getRequestDispatcher("/WEB-INF/jsp/registration.jsp").forward(request, response);
 
 		} else {

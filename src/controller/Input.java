@@ -309,6 +309,9 @@ public class Input extends HttpServlet {
 
 				DrinkPricesTable dpt = new DrinkPricesTable();
 				ArrayList<DrinkPrice> drinklist = dpt.allRead();
+
+				ArrayList<Date> visit_dates = new MessagesTable().getVisitDates(customer_id);
+
 				DbAccess.close();
 
 				request.setAttribute("customer", customer);
@@ -318,6 +321,7 @@ public class Input extends HttpServlet {
 				request.setAttribute("orderdate", orderdate);
 				request.setAttribute("foodlist", foodlist);
 				request.setAttribute("drinklist", drinklist);
+				request.setAttribute("visit_dates", visit_dates);
 				request.getRequestDispatcher("/WEB-INF/jsp/registration.jsp").forward(request, response);
 
 			} catch (Exception e) {

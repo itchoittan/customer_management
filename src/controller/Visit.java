@@ -109,6 +109,7 @@ public class Visit extends HttpServlet {
 		ArrayList<FoodPrice> foodlist = null;
 		ArrayList<DrinkPrice> drinklist = null;
 		Date orderdate = null;
+		ArrayList<Date> visit_dates = null;
 
 		try {
 
@@ -128,6 +129,8 @@ public class Visit extends HttpServlet {
 				DrinkPricesTable dpt = new DrinkPricesTable();
 				drinklist = dpt.allRead();
 				orderdate = messagelist.get(0).getOrderdate();
+
+				visit_dates = new MessagesTable().getVisitDates(customer_id);
 
 			} else {
 				System.out.println("顧客情報検索時にシステムエラーが出ました");
@@ -151,6 +154,7 @@ public class Visit extends HttpServlet {
 			request.setAttribute("orderdate", orderdate);
 			request.setAttribute("foodlist", foodlist);
 			request.setAttribute("drinklist", drinklist);
+			request.setAttribute("visit_dates", visit_dates);
 			request.getRequestDispatcher("/WEB-INF/jsp/registration.jsp").forward(request, response);
 
 		} else {

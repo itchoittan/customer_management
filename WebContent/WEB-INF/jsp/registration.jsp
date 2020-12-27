@@ -23,13 +23,6 @@ if (customer.getPhone() != null)
 ArrayList<Food> foodregistration = (ArrayList<Food>) request.getAttribute("foodregistration");
 ArrayList<Drink> drinkregistration = (ArrayList<Drink>) request.getAttribute("drinkregistration");
 ArrayList<Message> messagelist = (ArrayList<Message>) request.getAttribute("messagelist");
-
-/*String message = "";
-for (int i = 0; i < messagelist.size(); i++) {
-	message += messagelist.get(i).getMessage();
-	message += "\n";
-}
-*/
 ArrayList<FoodPrice> foodlist = (ArrayList<FoodPrice>) request.getAttribute("foodlist");
 ArrayList<DrinkPrice> drinklist = (ArrayList<DrinkPrice>) request.getAttribute("drinklist");
 ArrayList<String> errormessage = (ArrayList<String>) request.getAttribute("errormessage");
@@ -44,6 +37,13 @@ String orderdateD = sdfD.format(orderdate);
 
 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 String birthday = sdf.format(customer.getBirthday());
+
+ArrayList<Date> visit_dates = (ArrayList<Date>) request.getAttribute("visit_dates");
+if(visit_dates == null){
+	visit_dates = new ArrayList<Date>();
+}
+SimpleDateFormat sdfjp = new SimpleDateFormat("yyyy年MM月dd日");
+
 
 int totalprice = 0;
 for (int i = 0; i < foodregistration.size(); i++) {
@@ -220,10 +220,26 @@ textarea:disabled {
 	padding: 20px;
 }
 
+.visit td {
+	padding: 5px 10px;
+}
+
 .visit>div>textarea {
 	font-size: 16px;
 	line-height: 1.4em;
 	width: 100%;
+}
+
+.visit textarea:focus {
+	border: 1px solid #ffa3d1;
+	box-shadow: 4px 4px 4px #ffa3d1;
+	outline: 0;
+}
+
+#totalprice:focus {
+	border: 1px solid #ffa3d1;
+	box-shadow: 4px 4px 4px #ffa3d1;
+	outline: 0;
 }
 
 .menu input {
@@ -235,6 +251,20 @@ textarea:disabled {
 }
 
 .menu input:active {
+	box-shadow: none;
+	position: relative;
+	top: 4px;
+}
+
+.year input {
+	width: 80px;
+	height: 35px;
+	cursor: pointer;
+	border: 1px solid #ffa3d1;
+	box-shadow: 4px 4px 4px #ffa3d1;
+}
+
+.year input:active {
 	box-shadow: none;
 	position: relative;
 	top: 4px;
@@ -333,6 +363,12 @@ textarea:disabled {
             for( let i = 0; i < select_item.length; i++){
             	select_item[i].disabled = false;
             }
+
+            document.getElementById('numbervisit').disabled = true;
+            document.getElementById('totalprice').disabled = true;
+
+            document.getElementById('numbervisit').style.backgroundColor = '#ffffff';
+
         }
 
 
@@ -419,6 +455,15 @@ textarea:disabled {
                 document.getElementById('totalprice').value = base_totalprice + food_totalprice + drink_totalprice;
             });
 
+const select_change_date = document.getElementById('select_change_date');
+document.getElementById('bt_change_date').addEventListener('click',function(){
+
+    let idx = select_change_date.selectedIndex;
+    let change_date = select_change_date.options[idx].value;
+    document.getElementById('hidden_change_date').value = change_date;
+    document.getElementById('form_change_date').submit();
+});
+
 
 
 
@@ -435,9 +480,7 @@ textarea:disabled {
             	select_item[i].disabled = true;
             }
             document.getElementById('bt_change').disabled = false;
-
             document.getElementById('bt_change').addEventListener('click',func_bt_change);
-
 
 
         }
@@ -447,15 +490,13 @@ textarea:disabled {
 
 
 
-
-
-
 <title>登録情報画面</title>
 </head>
 <body>
 
 	<form method="post" class="large_block" id="all_area"
 		action="./registration" enctype="multipart/form-data">
+		<input type="hidden" name="action" value="update">
 		<div class="customer">
 			<div class="error">
 
@@ -493,8 +534,10 @@ textarea:disabled {
 						value="<%=phone%>"><label>誕生日</label><input type="date"
 						name="birthday" value="<%=birthday%>"><label>年齢</label><input
 						type="number" name="age" placeholder="だいたいの年齢"
-						value="<%=customer.getAge()%>"><label>来店回数</label><input
-						type="number" name="numbervisit"
+						value="<%=customer.getAge()%>"> <label>来店回数</label><input
+						type="number" id="numbervisit"
+						value="<%=customer.getNumbervisit()%>"> <input
+						type="hidden" name="numbervisit"
 						value="<%=customer.getNumbervisit()%>">
 				</div>
 				<!-- 画像は切り替わるよりスライドショーが良いかもしれない
@@ -503,14 +546,13 @@ textarea:disabled {
 			</div>
 
 			<div class="privacy4">
-				<%=customer.getName()%>
 				<label>好きなもの（料理・ドリンク等）</label>
 				<textarea name="likefood" id="" cols="30" rows="4"><%=customer.getLikefood()%></textarea>
 				<!-- disabledを入れると部品を無効化
                     readonlyを入れると書き換えを禁止 -->
 				<label>嫌いなもの（料理・ドリンク等）</label>
 				<textarea name="hatefood" id="" cols="30" rows="4"><%=customer.getHatefood()%></textarea>
-				<label>○○様全般メモ（接客時の注意事項や共有すること）</label>
+				<label>全般メモ（接客時の注意事項や共有すること）</label>
 				<textarea name="memo" id="" cols="30" rows="4"><%=customer.getText()%></textarea>
 			</div>
 		</div>
@@ -537,8 +579,8 @@ textarea:disabled {
 				<c:forEach var="food" items="${foodregistration}">
 					<p>
 						<c:out value="${food.food}" />
-						<c:out value="${food.foodprice}" />
 						<c:out value="${food.quantity}" />
+						<c:out value="${food.foodprice}" />
 					</p>
 				</c:forEach>
 				<%
@@ -562,8 +604,8 @@ textarea:disabled {
 				<c:forEach var="drink" items="${drinkregistration}">
 					<p>
 						<c:out value="${drink.drink}" />
-						<c:out value="${drink.drinkprice}" />
 						<c:out value="${drink.quantity}" />
+						<c:out value="${drink.drinkprice}" />
 					</p>
 				</c:forEach>
 				<%
@@ -589,6 +631,22 @@ textarea:disabled {
 				%>
 			</div>
 
+			<div class="year">
+				<select id="select_change_date">
+					<%
+						for (int i = 0; i < visit_dates.size(); i++) {
+						if (i != visit_dates.size() - 1) {
+							out.println("<option value='" + sdf.format(visit_dates.get(i)) + "'>" +
+							sdfjp.format(visit_dates.get(i)) + "</option>");
+						} else {
+							out.println("<option value='" + sdf.format(visit_dates.get(i)) + "' selected>" +
+							sdfjp.format(visit_dates.get(i)) + "</option>");
+						}
+					}
+					%>
+				</select> <input type="button" id="bt_change_date" value="表示">
+			</div>
+
 		</div>
 
 		<div class="registration" id="registration">
@@ -596,7 +654,13 @@ textarea:disabled {
 		</div>
 
 	</form>
-
+	<form method="post" id="form_change_date" action="./registration">
+		<input type="hidden" name="action" value="change_date">
+		<input
+			type="hidden" id="hidden_change_date" name="change_date" value="">
+		<input type="hidden" name="customer_id"
+			value="<%=customer.getCustomers_id()%>">
+	</form>
 
 
 
