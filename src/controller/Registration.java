@@ -389,8 +389,7 @@ public class Registration extends HttpServlet {
 			ArrayList<Food> foodregistration = new FoodsTable().dateRead(customer_id,str_orderdate);
 			ArrayList<Drink> drinkregistration = new DrinksTable().dateRead(customer_id,str_orderdate);
 			ArrayList<Message> messagelist = new MessagesTable().dateMessageRead(customer_id,str_orderdate);
-System.out.println(str_orderdate);
-System.out.println(foodregistration.get(0).getOrderdate());
+
 			FoodPricesTable fpt = new FoodPricesTable();
 			ArrayList<FoodPrice> foodlist = fpt.allRead();
 

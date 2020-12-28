@@ -39,11 +39,10 @@ SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 String birthday = sdf.format(customer.getBirthday());
 
 ArrayList<Date> visit_dates = (ArrayList<Date>) request.getAttribute("visit_dates");
-if(visit_dates == null){
+if (visit_dates == null) {
 	visit_dates = new ArrayList<Date>();
 }
 SimpleDateFormat sdfjp = new SimpleDateFormat("yyyy年MM月dd日");
-
 
 int totalprice = 0;
 for (int i = 0; i < foodregistration.size(); i++) {
@@ -90,7 +89,8 @@ select {
 	font-size: 100%;
 	border: 1px solid #c1c1c1;
 	border-radius: 5px;
-	padding: 6px 12px;
+	padding: 9px 15px;
+	margin-right: 10px;
 }
 
 option {
@@ -111,6 +111,12 @@ textarea:focus {
 
 textarea:disabled {
 	background-color: #ffffff;
+}
+
+#my_image {
+	width: 400px;
+	height: 400px;
+	padding-right: 30px;
 }
 
 .large_block {
@@ -134,8 +140,8 @@ textarea:disabled {
 }
 
 .customer {
-	width: 75%;
-	padding: 30px;
+	width: 660px;
+	padding-top: 30px;
 	margin: 20px auto;
 }
 
@@ -207,7 +213,7 @@ textarea:disabled {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-	width: 75%;
+	width: 598px;
 	height: auto;
 	padding: 30px;
 	margin: 20px auto;
@@ -221,7 +227,7 @@ textarea:disabled {
 }
 
 .visit td {
-	padding: 5px 10px;
+	padding: 5px 18px;
 }
 
 .visit>div>textarea {
@@ -243,8 +249,8 @@ textarea:disabled {
 }
 
 .menu input {
-	width: 100px;
-	height: 40px;
+	width: 80px;
+	height: 35px;
 	cursor: pointer;
 	border: 1px solid #ffa3d1;
 	box-shadow: 4px 4px 4px #ffa3d1;
@@ -254,6 +260,11 @@ textarea:disabled {
 	box-shadow: none;
 	position: relative;
 	top: 4px;
+}
+
+.date {
+	display: flex;
+	justify-content: space-between;
 }
 
 .year input {
@@ -273,8 +284,9 @@ textarea:disabled {
 .registration {
 	display: flex;
 	justify-content: flex-end;
-	width: 87%;
+	width: 658px;
 	padding: 30px;
+	margin: 20px auto;
 }
 
 .registration>input {
@@ -293,11 +305,6 @@ textarea:disabled {
 
 .underline {
 	background: linear-gradient(transparent 70%, #ffa3d1 70%);
-}
-
-#my_image {
-	width: 100px;
-	height: 100px;
 }
 </style>
 <script
@@ -519,9 +526,8 @@ document.getElementById('bt_change_date').addEventListener('click',function(){
 				<div>
 
 					<img id="my_image" src="<%=photo%>"> <input type="hidden"
-						name="photo" value="<%=customer.getPhoto()%>"> <label>画像ファイル</label>
-					<input type="file" id="image_file" accept="image/*"
-						name="image_file">
+						name="photo" value="<%=customer.getPhoto()%>"> <input
+						type="file" id="image_file" accept="image/*" name="image_file">
 				</div>
 
 				<div class="privacy2">
@@ -560,10 +566,26 @@ document.getElementById('bt_change_date').addEventListener('click',function(){
 
 		<div class="visit">
 
-			<p><%=orderdateY%>年<%=orderdateM%>月<%=orderdateD%>日来店記録
-			</p>
-			<input type="hidden" name="orderdate"
-				value="<%=orderdateY%>-<%=orderdateM%>-<%=orderdateD%>">
+			<div class="date"><%=orderdateY%>年<%=orderdateM%>月<%=orderdateD%>日来店記録
+				<input type="hidden" name="orderdate"
+					value="<%=orderdateY%>-<%=orderdateM%>-<%=orderdateD%>">
+
+				<div class="year">
+					<select id="select_change_date">
+						<%
+							for (int i = 0; i < visit_dates.size(); i++) {
+							if (i != visit_dates.size() - 1) {
+								out.println("<option value='" + sdf.format(visit_dates.get(i)) + "'>" +
+								sdfjp.format(visit_dates.get(i)) + "</option>");
+							} else {
+								out.println("<option value='" + sdf.format(visit_dates.get(i)) + "' selected>" +
+								sdfjp.format(visit_dates.get(i)) + "</option>");
+							}
+						}
+						%>
+					</select> <input type="button" id="bt_change_date" value="表示">
+				</div>
+			</div>
 			<div>
 				<p>
 					<span class="underline">注文料理</span>
@@ -577,13 +599,15 @@ document.getElementById('bt_change_date').addEventListener('click',function(){
 				<%
 					if (foodregistration != null) {
 				%>
-				<c:forEach var="food" items="${foodregistration}">
-					<p>
-						<c:out value="${food.food}" />
-						<c:out value="${food.quantity}" />
-						<c:out value="${food.foodprice}" />
-					</p>
-				</c:forEach>
+				<table>
+					<c:forEach var="food" items="${foodregistration}">
+						<tr>
+							<td><c:out value="${food.food}" /></td>
+							<td><c:out value="${food.quantity}" /></td>
+							<td><c:out value="${food.foodprice}" /></td>
+						</tr>
+					</c:forEach>
+				</table>
 				<%
 					}
 				%>
@@ -602,13 +626,15 @@ document.getElementById('bt_change_date').addEventListener('click',function(){
 				<%
 					if (drinkregistration != null) {
 				%>
-				<c:forEach var="drink" items="${drinkregistration}">
-					<p>
-						<c:out value="${drink.drink}" />
-						<c:out value="${drink.quantity}" />
-						<c:out value="${drink.drinkprice}" />
-					</p>
-				</c:forEach>
+				<table>
+					<c:forEach var="drink" items="${drinkregistration}">
+						<tr>
+							<td><c:out value="${drink.drink}" /></td>
+							<td><c:out value="${drink.quantity}" /></td>
+							<td><c:out value="${drink.drinkprice}" /></td>
+						</tr>
+					</c:forEach>
+				</table>
 				<%
 					}
 				%>
@@ -632,21 +658,7 @@ document.getElementById('bt_change_date').addEventListener('click',function(){
 				%>
 			</div>
 
-			<div class="year">
-				<select id="select_change_date">
-					<%
-						for (int i = 0; i < visit_dates.size(); i++) {
-						if (i != visit_dates.size() - 1) {
-							out.println("<option value='" + sdf.format(visit_dates.get(i)) + "'>" +
-							sdfjp.format(visit_dates.get(i)) + "</option>");
-						} else {
-							out.println("<option value='" + sdf.format(visit_dates.get(i)) + "' selected>" +
-							sdfjp.format(visit_dates.get(i)) + "</option>");
-						}
-					}
-					%>
-				</select> <input type="button" id="bt_change_date" value="表示">
-			</div>
+
 
 		</div>
 
@@ -657,8 +669,7 @@ document.getElementById('bt_change_date').addEventListener('click',function(){
 	</form>
 	<form method="post" id="form_change_date" action="./registration">
 		<input type="hidden" name="action" value="change_date">
-		<input
-			type="hidden" id="hidden_change_date" name="change_date" value="">
+		<input type="hidden" id="hidden_change_date" name="change_date" value="">
 		<input type="hidden" name="customer_id"
 			value="<%=customer.getCustomers_id()%>">
 	</form>
