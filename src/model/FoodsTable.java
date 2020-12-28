@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 import bean.Food;
@@ -51,8 +52,14 @@ public class FoodsTable extends DbAccess {
 		PreparedStatement pstmt = connection
 				.prepareStatement(
 						"SELECT food,foodprice,SUM(foodprice*quantity) AS sumprice, SUM(quantity) AS sumquantity FROM foods JOIN food_prices ON foods.food_price_id=food_prices.food_price_id WHERE orderdate>=? AND orderdate<=? GROUP BY foods.food_price_id ORDER BY sumquantity DESC ,sumprice DESC ");
+
+		Calendar c = Calendar.getInstance();
+		c.clear();
+		c.set(inputOrderdate.getYear(), inputOrderdate.getMonth(), 1);
+		int day = c.getActualMaximum(Calendar.DATE);
+
 		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-01");
-		SimpleDateFormat sdf31 = new SimpleDateFormat("yyyy-MM-31");
+		SimpleDateFormat sdf31 = new SimpleDateFormat("yyyy-MM-" + day);
 		pstmt.setString(1, sdf1.format(inputOrderdate));
 		pstmt.setString(2, sdf31.format(inputOrderdate));
 

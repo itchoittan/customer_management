@@ -81,14 +81,12 @@ public class PopularFood extends HttpServlet {
 		request.setCharacterEncoding("UTF-8");
 		String year_date = request.getParameter("year");
 		String month_date = request.getParameter("month");
-		System.out.println(year_date);
-		System.out.println(month_date);
+
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM");
 
 		String error = "";
 
 		ArrayList<PopularOrder> popularOrder = null;
-//		Date orderdate = new Date();
 
 		try {
 			Date change_date = sdf.parse(year_date + "/" +  month_date);
