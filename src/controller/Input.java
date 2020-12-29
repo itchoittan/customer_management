@@ -85,6 +85,9 @@ public class Input extends HttpServlet {
 		Part part = request.getPart("image_file");
 		String photo = this.getFileName(part);
 		boolean photo_update_flg = true;
+		if(photo ==  null || photo.equals("")) {
+			photo_update_flg = false;
+		}
 
 		String name = request.getParameter("name");
 		if(name == null) {
@@ -359,7 +362,7 @@ public class Input extends HttpServlet {
 					MessagesTable messagesTable = new MessagesTable();
 					messagesTable.messageInsert(customer_id, message, orderdate);
 
-					if (photo != null && !photo.equals("")) {
+					if (photo_update_flg) {
 						photo = customer_id + "." + photo;
 						customersTable.photoUpdate(customer_id, photo);
 					}
