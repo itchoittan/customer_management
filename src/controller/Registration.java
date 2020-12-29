@@ -152,7 +152,12 @@ public class Registration extends HttpServlet {
 			errors.add("想定外のエラーが発生しました。システム管理者に相談してください:customer_id取得エラー");
 		}
 
-		String photo = request.getParameter("photo");
+		String post_photo = request.getParameter("photo");
+		if(post_photo == null) {
+			post_photo = "";
+		}
+		String photo = "";
+
 		Part part;
 		try {
 			part = request.getPart("image_file");
@@ -164,6 +169,7 @@ public class Registration extends HttpServlet {
 		if (part != null) {
 			if (!this.getFileName(part).equals("")) {
 				photo = customer_id + "." + this.getFileName(part);
+				post_photo = photo;
 			}
 		}
 
@@ -338,7 +344,7 @@ public class Registration extends HttpServlet {
 
 				CustomersTable customersTable = new CustomersTable();
 				customersTable.update(customer_id, name, mobilephone, phone, birthday, age,
-						photo, likefood, hatefood, memo, numbervisit);
+						post_photo, likefood, hatefood, memo, numbervisit);
 
 				if (food_price_ids != null) {
 					FoodsTable foodsTable = new FoodsTable();
@@ -386,9 +392,9 @@ public class Registration extends HttpServlet {
 
 			DbAccess.getConnection();
 			Customer customer = new CustomersTable().customerRead(customer_id);
-			ArrayList<Food> foodregistration = new FoodsTable().dateRead(customer_id,str_orderdate);
-			ArrayList<Drink> drinkregistration = new DrinksTable().dateRead(customer_id,str_orderdate);
-			ArrayList<Message> messagelist = new MessagesTable().dateMessageRead(customer_id,str_orderdate);
+			ArrayList<Food> foodregistration = new FoodsTable().dateRead(customer_id, str_orderdate);
+			ArrayList<Drink> drinkregistration = new DrinksTable().dateRead(customer_id, str_orderdate);
+			ArrayList<Message> messagelist = new MessagesTable().dateMessageRead(customer_id, str_orderdate);
 
 			FoodPricesTable fpt = new FoodPricesTable();
 			ArrayList<FoodPrice> foodlist = fpt.allRead();

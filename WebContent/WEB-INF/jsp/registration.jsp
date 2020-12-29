@@ -525,9 +525,9 @@ document.getElementById('bt_change_date').addEventListener('click',function(){
 			<div class="privacy">
 				<div>
 
-					<img id="my_image" src="<%=photo%>"> <input type="hidden"
-						name="photo" value="<%=customer.getPhoto()%>"> <input
-						type="file" id="image_file" accept="image/*" name="image_file">
+					<img id="my_image" src="<%=photo%>">
+					 <input type="hidden" name="photo" value="<%=customer.getPhoto()%>">
+					 <input type="file" id="image_file" accept="image/*" name="image_file">
 				</div>
 
 				<div class="privacy2">

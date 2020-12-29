@@ -1,6 +1,7 @@
 package controller;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -78,7 +79,44 @@ public class PopularDrink extends HttpServlet {
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		request.setCharacterEncoding("UTF-8");
-		doGet(request, response);
+
+		String year_date = request.getParameter("year");
+		String month_date = request.getParameter("month");
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM");
+
+		String error = "";
+
+		ArrayList<PopularOrder> popularOrder = null;
+
+		try {
+			Date change_date = sdf.parse(year_date + "/" +  month_date);
+			DbAccess.getConnection();
+			popularOrder = new DrinksTable().popularRead(change_date);
+
+			if (popularOrder.size() == 0) {
+				error = "選択された年月に、注文されたドリンクはデータにありませんでした。";
+			}
+
+		} catch (Exception e) {
+			System.out.println("人気ドリンク検索時にシステムエラーが出ました");
+			e.printStackTrace();
+			error = "人気ドリンク検索時に想定外のエラーが出ましたので、システム管理者に相談してください:人気ドリンク検索読み込みエラー";
+
+		} finally {
+			DbAccess.close();
+		}
+		if (error.equals("")) {
+			request.setAttribute("popularOrder", popularOrder);
+
+			request.getRequestDispatcher("/WEB-INF/jsp/populardrink.jsp").forward(request, response);
+
+		} else {
+			request.setAttribute("errormessage", error);
+			request.getRequestDispatcher("/WEB-INF/jsp/populardrink.jsp").forward(request, response);
+
+		}
+
 	}
 
 }
