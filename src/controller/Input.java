@@ -84,8 +84,12 @@ public class Input extends HttpServlet {
 
 		Part part = request.getPart("image_file");
 		String photo = this.getFileName(part);
+		boolean photo_update_flg = true;
 
 		String name = request.getParameter("name");
+		if(name == null) {
+			name = "";
+		}
 		String mobilephone = request.getParameter("mobilephone");
 		if (mobilephone.equals("")) {
 			mobilephone = null;
@@ -111,8 +115,17 @@ public class Input extends HttpServlet {
 		}
 
 		String likefood = request.getParameter("likefood");
+		if(likefood == null) {
+			likefood = "";
+		}
 		String hatefood = request.getParameter("hatefood");
+		if(hatefood == null) {
+			hatefood = "";
+		}
 		String memo = request.getParameter("memo");
+		if(memo == null) {
+			memo = "";
+		}
 		int numbervisit = 1;
 		String[] str_food_price_ids = request.getParameterValues("food_price_id");
 		String[] str_food_quantitys = request.getParameterValues("food_quantity");
@@ -195,9 +208,9 @@ public class Input extends HttpServlet {
 			}
 		}
 
-		if (food_price_ids == null && drink_price_ids == null) {
-			errors.add("料理かドリンクどちらかを選択してください");
-		}
+//		if (food_price_ids == null && drink_price_ids == null) {
+//			errors.add("料理かドリンクどちらかを選択してください");
+//		}
 
 		int customer_id = 0;
 		if (errors.size() == 0) {
@@ -208,7 +221,7 @@ public class Input extends HttpServlet {
 				CustomersTable customersTable = new CustomersTable();
 				//mobilephoneRead()にてインスタンスしているcustomerをcustomerに入れる
 				Customer customer1 = customersTable.mobilephoneRead(mobilephone);
-
+//入力画面から得た情報がデータになかったらcustomer1にnullが入る
 				Customer customer2 = customersTable.phoneRead(phone);
 
 				if (customer1 == null && customer2 == null) {
@@ -217,21 +230,98 @@ public class Input extends HttpServlet {
 							hatefood, memo, numbervisit);
 
 				} else if (customer1 != null && customer2 == null) {
+//					携帯電話で引き込めて、固定電話で引き込めないとき
+					if(phone == null) {
+						phone = customer1.getPhone();
+					}
+					if(birthday == null) {
+						birthday = customer1.getBirthday();
+					}
+					if(age == 0) {
+						age = customer1.getAge();
+					}
+					if(photo == null || photo.equals("")) {
+						photo_update_flg = false;
+						photo =customer1.getPhoto();
+					}
+					likefood = customer1.getLikefood() + likefood;
+					hatefood = customer1.getHatefood() + hatefood;
+					memo = customer1.getText() + memo;
 					customersTable.update(customer1.getCustomers_id(), name, mobilephone, phone, birthday, age, photo,
 							likefood, hatefood, memo, customer1.getNumbervisit() + 1);
 					customer_id = customer1.getCustomers_id();
+
 				} else if (customer1 == null && customer2 != null) {
+//					固定電話で引き込めて、携帯電話で引き込めないとき
+					if(mobilephone == null) {
+						mobilephone = customer2.getMobilephone();
+					}
+					if(birthday == null) {
+						birthday = customer2.getBirthday();
+					}
+					if(age == 0) {
+						age = customer2.getAge();
+					}
+					if(photo == null || photo.equals("")) {
+						photo_update_flg = false;
+						photo =customer2.getPhoto();
+					}
+					likefood = customer2.getLikefood() + likefood;
+					hatefood = customer2.getHatefood() + hatefood;
+					memo = customer2.getText() + memo;
+
 					customersTable.update(customer2.getCustomers_id(), name, mobilephone, phone, birthday, age, photo,
 							likefood, hatefood, memo, customer2.getNumbervisit() + 1);
 					customer_id = customer2.getCustomers_id();
 				} else if (customer1 != null && customer2 != null) {
 
 					if (customer1.getCustomers_id() == customer2.getCustomers_id()) {
+//						携帯電話で引き込めて、固定電話で引き込めたとき
+						if(birthday == null) {
+							birthday = customer1.getBirthday();
+						}
+						if(age == 0) {
+							age = customer1.getAge();
+						}
+						if(photo == null || photo.equals("")) {
+							photo_update_flg = false;
+							photo =customer1.getPhoto();
+						}
+						likefood = customer1.getLikefood() + likefood;
+						hatefood = customer1.getHatefood() + hatefood;
+						memo = customer1.getText() + memo;
+
 						customersTable.update(customer1.getCustomers_id(), name, mobilephone, phone, birthday, age,
 								photo,
 								likefood, hatefood, memo, customer1.getNumbervisit() + 1);
 						customer_id = customer1.getCustomers_id();
 					} else {
+//						携帯電話で引き込めて、固定電話で引き込めたときに過去登録してあるcustomerIDと違うとき
+//						新規customer_id作成パターン
+
+						if(birthday == null) {
+							birthday = customer1.getBirthday();
+							if(birthday.equals(new Date(1800,01,01))) {
+								birthday = customer2.getBirthday();
+							}
+						}
+						if(age == 0) {
+							age = customer1.getAge();
+							if(age == 0) {
+								age = customer2.getAge();
+							}
+						}
+						if(photo == null || photo.equals("")) {
+							photo_update_flg = false;
+							photo = customer1.getPhoto();
+							if(photo.equals("")) {
+								photo = customer2.getPhoto();
+							}
+						}
+
+						likefood = customer1.getLikefood()  + customer2.getLikefood() + likefood;
+						hatefood = customer1.getHatefood()  + customer2.getHatefood() + hatefood;
+						memo = customer1.getText() + customer2.getText() + memo;
 						numbervisit = customer1.getNumbervisit() + customer2.getNumbervisit() + 1;
 						customersTable.delete(customer1.getCustomers_id());
 						customersTable.delete(customer2.getCustomers_id());
@@ -294,7 +384,7 @@ public class Input extends HttpServlet {
 
 		if (errors.size() == 0 && customer_id != 0) {
 			try {
-				if (photo != null && !photo.equals("")) {
+				if (photo_update_flg) {
 					String uploadDir = getServletContext().getRealPath("/img") + File.separator;
 					part.write(uploadDir + photo);
 				}
