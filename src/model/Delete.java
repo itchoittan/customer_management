@@ -42,12 +42,12 @@ public class Delete {
 		 * JDBCドライバのロード
 		 * ※JDBC4.0対応のドライバでは、このステップは必要ありません
 		 */
-		try {
-
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
+//		try {
+//
+//			Class.forName("com.mysql.jdbc.Driver");
+//		} catch (ClassNotFoundException e) {
+//			e.printStackTrace();
+//		}
 
 		connection = null;
 

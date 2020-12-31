@@ -37,7 +37,6 @@ public class Namelist extends HttpServlet {
 	 */
 	public Namelist() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -45,10 +44,8 @@ public class Namelist extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		request.setCharacterEncoding("UTF-8");
 		response.sendRedirect("./name");
-
 	}
 
 	/**
@@ -56,14 +53,12 @@ public class Namelist extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		request.setCharacterEncoding("UTF-8");
 
 		String error = "";
 
 		String str_customer_id = request.getParameter("customer_id");
 		Customer customer = null;
-
 		ArrayList<Food> foodregistration = null;
 		ArrayList<Drink> drinkregistration = null;
 		ArrayList<Message> messagelist = null;
@@ -73,30 +68,33 @@ public class Namelist extends HttpServlet {
 		ArrayList<Date> visit_dates = null;
 
 		try {
-
 			DbAccess.getConnection();
 			int customer_id = Integer.parseInt(str_customer_id);
 			customer = new CustomersTable().customerRead(customer_id);
 
 			if (customer != null) {
 
+				//データベースのmessagesテーブルには日付が一緒に登録されているので
+				//最終書き込み日を必ず取得できるmessageテーブルから日付取得している
 				messagelist = new MessagesTable().messageRead(customer_id);
 				orderdate = messagelist.get(0).getOrderdate();
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 				String str_orderdate = sdf.format(orderdate);
-				foodregistration = new FoodsTable().dateRead(customer_id,str_orderdate);
+
+				//注文された料理・ドリンクのデータを取得
+				foodregistration = new FoodsTable().dateRead(customer_id, str_orderdate);
 				drinkregistration = new DrinksTable().dateRead(customer_id, str_orderdate);
 
-
+				//料理のプルダウン表示に使用
 				FoodPricesTable fpt = new FoodPricesTable();
 				foodlist = fpt.allRead();
 
+				//ドリンクのプルダウン表示に使用
 				DrinkPricesTable dpt = new DrinkPricesTable();
 				drinklist = dpt.allRead();
+
 				orderdate = messagelist.get(0).getOrderdate();
-
 				visit_dates = new MessagesTable().getVisitDates(customer_id);
-
 
 			} else {
 				System.out.println("顧客情報検索時にシステムエラーが出ました");
@@ -111,6 +109,7 @@ public class Namelist extends HttpServlet {
 		} finally {
 			DbAccess.close();
 		}
+
 		if (error.equals("")) {
 			request.setAttribute("customer", customer);
 			request.setAttribute("foodregistration", foodregistration);
@@ -121,7 +120,6 @@ public class Namelist extends HttpServlet {
 			request.setAttribute("drinklist", drinklist);
 			request.setAttribute("visit_dates", visit_dates);
 			request.getRequestDispatcher("/WEB-INF/jsp/registration.jsp").forward(request, response);
-
 		} else {
 			request.setAttribute("errormessage", error);
 			request.getRequestDispatcher("/WEB-INF/jsp/name.jsp").forward(request, response);

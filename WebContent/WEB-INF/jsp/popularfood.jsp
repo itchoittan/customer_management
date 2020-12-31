@@ -7,7 +7,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
 <%
-	ArrayList<PopularOrder> popularfoods = (ArrayList<PopularOrder>) request.getAttribute("popularOrder");
+ArrayList<PopularOrder> popularfoods = (ArrayList<PopularOrder>) request.getAttribute("popularOrder");
 
 String errormessage = (String) request.getAttribute("errormessage");
 if (popularfoods == null) {
@@ -26,7 +26,6 @@ if (errormessage == null) {
 <meta charset="UTF-8">
 
 <style>
-
 .large_block {
 	width: 800px;
 	min-width: 800px;
@@ -135,9 +134,16 @@ input:focus {
 <script>
 window.onload =function(){
 
-
+//即時関数
 	(function () {
 
+		/**
+		   * セレクトボックスの中にオプションを生成する
+		   * セレクトボックスのDOMのid属性値
+		   * オプションを生成する最初の数値
+		   * オプションを生成する最後の数値
+		   * 現在の日付にマッチする数値
+		   */
         const createOption = (id, startNum, endNum, current) => {
             const selectDom = document.getElementById(id);
             let optionDom = '';
@@ -152,18 +158,22 @@ window.onload =function(){
             selectDom.insertAdjacentHTML('beforeend', optionDom);
         }
 
+		//DOM
         const yearBox = document.getElementById('year');
         const monthBox = document.getElementById('month');
 
+		//日付データ
         const today = new Date();
         const thisYear = today.getFullYear();
         const thisMonth = today.getMonth() + 1;
 
+		//ロード時
         createOption('year', 2000, thisYear, thisYear);
         createOption('month', 1, 12, thisMonth);
 
     })();
 
+	//選択された年月をサーブレットに渡せるようにvalueに設定する
 	const year_change_date = document.getElementById('year');
 	const month_change_date = document.getElementById('month');
 	document.getElementById('bt_change_date').addEventListener('click',function(){
@@ -178,11 +188,9 @@ window.onload =function(){
 	    document.getElementById('month_change').value = month_date;
 	    document.getElementById('form_change_date').submit();
 	});
-
 }
 
 </script>
-
 
 <title>料理ランキング</title>
 </head>
@@ -191,27 +199,27 @@ window.onload =function(){
 	<div class="large_block">
 
 		<div class="year">
-			<select id="year" name="year"></select>
-			<select id="month" name="month"></select>
-			<input type="button" id="bt_change_date" value="表示">
+			<select id="year" name="year"></select> <select id="month"
+				name="month"></select> <input type="button" id="bt_change_date"
+				value="表示">
 		</div>
 
 		<form method="post" id="form_change_date" action="./popularfood">
-		<input type="hidden" id="year_change" name="year" value="">
-		<input type="hidden" id="month_change" name="month" value="">
-	</form>
+			<input type="hidden" id="year_change" name="year" value=""> <input
+				type="hidden" id="month_change" name="month" value="">
+		</form>
 
-	<div class="error">
-				<%
-					if (errormessage != null && !errormessage.equals("")) {
-				%>
-				<p>
-					<span><%=errormessage%></span>
-				</p>
-				<%
-					}
-				%>
-			</div>
+		<div class="error">
+			<%
+			if (errormessage != null && !errormessage.equals("")) {
+			%>
+			<p>
+				<span><%=errormessage%></span>
+			</p>
+			<%
+			}
+			%>
+		</div>
 
 		<table id="visit_table">
 			<tr>
@@ -222,7 +230,7 @@ window.onload =function(){
 			</tr>
 
 			<%
-				for (int i = 0; i < popularfoods.size(); i++) {
+			for (int i = 0; i < popularfoods.size(); i++) {
 			%>
 
 			<tr>
@@ -233,7 +241,7 @@ window.onload =function(){
 
 			</tr>
 			<%
-				}
+			}
 			%>
 		</table>
 	</div>

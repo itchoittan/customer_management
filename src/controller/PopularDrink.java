@@ -27,7 +27,6 @@ public class PopularDrink extends HttpServlet {
 	 */
 	public PopularDrink() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -35,7 +34,6 @@ public class PopularDrink extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		request.setCharacterEncoding("UTF-8");
 
 		String error = "";
@@ -59,17 +57,14 @@ public class PopularDrink extends HttpServlet {
 		} finally {
 			DbAccess.close();
 		}
+
 		if (error.equals("")) {
 			request.setAttribute("popularOrder", popularOrder);
-
 			request.getRequestDispatcher("/WEB-INF/jsp/populardrink.jsp").forward(request, response);
-
 		} else {
 			request.setAttribute("errormessage", error);
 			request.getRequestDispatcher("/WEB-INF/jsp/populardrink.jsp").forward(request, response);
-
 		}
-
 	}
 
 	/**
@@ -77,7 +72,7 @@ public class PopularDrink extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
+
 		request.setCharacterEncoding("UTF-8");
 
 		String year_date = request.getParameter("year");
@@ -90,7 +85,8 @@ public class PopularDrink extends HttpServlet {
 		ArrayList<PopularOrder> popularOrder = null;
 
 		try {
-			Date change_date = sdf.parse(year_date + "/" +  month_date);
+			//yearとmonthが別々に渡されるので、フォーマットでDate型に変換
+			Date change_date = sdf.parse(year_date + "/" + month_date);
 			DbAccess.getConnection();
 			popularOrder = new DrinksTable().popularRead(change_date);
 
@@ -106,17 +102,15 @@ public class PopularDrink extends HttpServlet {
 		} finally {
 			DbAccess.close();
 		}
+
 		if (error.equals("")) {
 			request.setAttribute("popularOrder", popularOrder);
-
 			request.getRequestDispatcher("/WEB-INF/jsp/populardrink.jsp").forward(request, response);
 
 		} else {
 			request.setAttribute("errormessage", error);
 			request.getRequestDispatcher("/WEB-INF/jsp/populardrink.jsp").forward(request, response);
-
 		}
-
 	}
 
 }

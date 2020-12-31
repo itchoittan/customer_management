@@ -37,7 +37,6 @@ public class Visit extends HttpServlet {
 	 */
 	public Visit() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -45,7 +44,6 @@ public class Visit extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		request.setCharacterEncoding("UTF-8");
 
 		String error = "";
@@ -58,11 +56,12 @@ public class Visit extends HttpServlet {
 			customers = new CustomersTable().allRead();
 
 			if (customers.size() != 0) {
-
 				for (int i = 0; i < customers.size(); i++) {
-					ArrayList<Message>messagelist = new MessagesTable()
-							.messageRead(customers.get(i).getCustomers_id());
 
+					//データベースのmessagesテーブルには日付が一緒に登録されているので
+					//最終書き込み日を必ず取得できるmessageテーブルから日付取得している
+					ArrayList<Message> messagelist = new MessagesTable()
+							.messageRead(customers.get(i).getCustomers_id());
 					orderdates.add(messagelist.get(0).getOrderdate());
 				}
 			} else {
@@ -73,10 +72,10 @@ public class Visit extends HttpServlet {
 			System.out.println("顧客情報検索時にシステムエラーが出ました");
 			e.printStackTrace();
 			error = "顧客情報検索時に想定外のエラーが出ましたので、システム管理者に相談してください:顧客情報検索読み込みエラー";
-
 		} finally {
 			DbAccess.close();
 		}
+
 		if (error.equals("")) {
 			request.setAttribute("customers", customers);
 			request.setAttribute("orderdates", orderdates);
@@ -124,7 +123,7 @@ public class Visit extends HttpServlet {
 				orderdate = messagelist.get(0).getOrderdate();
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 				String str_orderdate = sdf.format(orderdate);
-				foodregistration = new FoodsTable().dateRead(customer_id,str_orderdate);
+				foodregistration = new FoodsTable().dateRead(customer_id, str_orderdate);
 				drinkregistration = new DrinksTable().dateRead(customer_id, str_orderdate);
 
 				FoodPricesTable fpt = new FoodPricesTable();
@@ -144,11 +143,10 @@ public class Visit extends HttpServlet {
 			System.out.println("顧客情報検索時にシステムエラーが出ました");
 			e.printStackTrace();
 			error = "顧客情報検索時に想定外のエラーが出ましたので、システム管理者に相談してください:customer_id読み込みエラー";
-
-
 		} finally {
 			DbAccess.close();
 		}
+
 		if (error.equals("")) {
 			request.setAttribute("customer", customer);
 			request.setAttribute("foodregistration", foodregistration);
@@ -159,12 +157,9 @@ public class Visit extends HttpServlet {
 			request.setAttribute("drinklist", drinklist);
 			request.setAttribute("visit_dates", visit_dates);
 			request.getRequestDispatcher("/WEB-INF/jsp/registration.jsp").forward(request, response);
-
 		} else {
 			request.setAttribute("errormessage", error);
 			request.getRequestDispatcher("/WEB-INF/jsp/visit.jsp").forward(request, response);
 		}
-
 	}
-
 }

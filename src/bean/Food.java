@@ -46,7 +46,4 @@ public class Food implements Serializable{
 	public int getQuantity() {
 		return quantity;
 	}
-
-
-
 }

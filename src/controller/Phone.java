@@ -37,7 +37,6 @@ public class Phone extends HttpServlet {
 	 */
 	public Phone() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -45,7 +44,6 @@ public class Phone extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		request.setCharacterEncoding("UTF-8");
 		request.getRequestDispatcher("/WEB-INF/jsp/phone.jsp").forward(request, response);
 	}
@@ -55,7 +53,6 @@ public class Phone extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		request.setCharacterEncoding("UTF-8");
 
 		String error = "";
@@ -73,18 +70,23 @@ public class Phone extends HttpServlet {
 
 		try {
 			DbAccess.getConnection();
+			//入力された電話番号を、携帯電話で検索し、なかった場合は固定電話で検索する
 			customer = new CustomersTable().mobilephoneRead(phone);
 
 			if (customer == null) {
 				customer = new CustomersTable().phoneRead(phone);
 			}
+
 			if (customer != null) {
 
+				//データベースのmessagesテーブルには日付が一緒に登録されているので
+				//最終書き込み日を必ず取得できるmessageテーブルから日付取得している
 				messagelist = new MessagesTable().messageRead(customer.getCustomers_id());
 				orderdate = messagelist.get(0).getOrderdate();
+
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 				String str_orderdate = sdf.format(orderdate);
-				foodregistration = new FoodsTable().dateRead(customer.getCustomers_id(),str_orderdate);
+				foodregistration = new FoodsTable().dateRead(customer.getCustomers_id(), str_orderdate);
 				drinkregistration = new DrinksTable().dateRead(customer.getCustomers_id(), str_orderdate);
 
 				FoodPricesTable fpt = new FoodPricesTable();
@@ -92,8 +94,8 @@ public class Phone extends HttpServlet {
 
 				DrinkPricesTable dpt = new DrinkPricesTable();
 				drinklist = dpt.allRead();
-				orderdate = messagelist.get(0).getOrderdate();
 
+				orderdate = messagelist.get(0).getOrderdate();
 				visit_dates = new MessagesTable().getVisitDates(customer.getCustomers_id());
 			} else {
 				error = "入力された電話番号はデータにありませんでした。";
@@ -107,6 +109,7 @@ public class Phone extends HttpServlet {
 		} finally {
 			DbAccess.close();
 		}
+
 		if (error.equals("")) {
 			request.setAttribute("customer", customer);
 			request.setAttribute("foodregistration", foodregistration);

@@ -27,7 +27,6 @@ public class PopularFood extends HttpServlet {
 	 */
 	public PopularFood() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -35,7 +34,6 @@ public class PopularFood extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		request.setCharacterEncoding("UTF-8");
 
 		String error = "";
@@ -59,17 +57,15 @@ public class PopularFood extends HttpServlet {
 		} finally {
 			DbAccess.close();
 		}
+
 		if (error.equals("")) {
 			request.setAttribute("popularOrder", popularOrder);
-
 			request.getRequestDispatcher("/WEB-INF/jsp/popularfood.jsp").forward(request, response);
 
 		} else {
 			request.setAttribute("errormessage", error);
 			request.getRequestDispatcher("/WEB-INF/jsp/popularfood.jsp").forward(request, response);
-
 		}
-
 	}
 
 	/**
@@ -77,8 +73,9 @@ public class PopularFood extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
+
 		request.setCharacterEncoding("UTF-8");
+
 		String year_date = request.getParameter("year");
 		String month_date = request.getParameter("month");
 
@@ -89,6 +86,7 @@ public class PopularFood extends HttpServlet {
 		ArrayList<PopularOrder> popularOrder = null;
 
 		try {
+			//yearとmonthが別々に渡されるので、フォーマットでDate型に変換
 			Date change_date = sdf.parse(year_date + "/" +  month_date);
 			DbAccess.getConnection();
 			popularOrder = new FoodsTable().popularRead(change_date);
@@ -105,17 +103,15 @@ public class PopularFood extends HttpServlet {
 		} finally {
 			DbAccess.close();
 		}
+
 		if (error.equals("")) {
 			request.setAttribute("popularOrder", popularOrder);
-
 			request.getRequestDispatcher("/WEB-INF/jsp/popularfood.jsp").forward(request, response);
 
 		} else {
 			request.setAttribute("errormessage", error);
 			request.getRequestDispatcher("/WEB-INF/jsp/popularfood.jsp").forward(request, response);
-
 		}
-
 	}
 
 }

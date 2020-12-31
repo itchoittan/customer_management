@@ -43,7 +43,6 @@ public class Input extends HttpServlet {
 	 */
 	public Input() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -51,7 +50,6 @@ public class Input extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		request.setCharacterEncoding("UTF-8");
 
 		DbAccess.getConnection();
@@ -76,33 +74,37 @@ public class Input extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
 
 		request.setCharacterEncoding("UTF-8");
 
 		ArrayList<String> errors = new ArrayList<>();
 
+		/*アップロードボタンを押してデータが入ってきた時は
+		 * アップデートフラグをtrueにして後にデータの上書きを行うようにする
+		 */
 		Part part = request.getPart("image_file");
 		String photo = this.getFileName(part);
 		boolean photo_update_flg = true;
-		if(photo ==  null || photo.equals("")) {
+		if (photo == null || photo.equals("")) {
 			photo_update_flg = false;
 		}
 
 		String name = request.getParameter("name");
-		if(name == null) {
+		if (name == null) {
 			name = "";
 		}
+
 		String mobilephone = request.getParameter("mobilephone");
 		if (mobilephone.equals("")) {
 			mobilephone = null;
 		}
+
 		String phone = request.getParameter("phone");
 		if (phone.equals("")) {
 			phone = null;
 		}
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		Date birthday;
 		try {
 			birthday = sdf.parse(request.getParameter("birthday"));
@@ -118,24 +120,30 @@ public class Input extends HttpServlet {
 		}
 
 		String likefood = request.getParameter("likefood");
-		if(likefood == null) {
+		if (likefood == null) {
 			likefood = "";
 		}
+
 		String hatefood = request.getParameter("hatefood");
-		if(hatefood == null) {
+		if (hatefood == null) {
 			hatefood = "";
 		}
+
 		String memo = request.getParameter("memo");
-		if(memo == null) {
+		if (memo == null) {
 			memo = "";
 		}
+
 		int numbervisit = 1;
+
+		//選択された料理・ドリンクのIDと注文個数を複数収納できるように配列に入れる
 		String[] str_food_price_ids = request.getParameterValues("food_price_id");
 		String[] str_food_quantitys = request.getParameterValues("food_quantity");
 		String[] str_drink_price_ids = request.getParameterValues("drink_price_id");
 		String[] str_drink_quantitys = request.getParameterValues("drink_quantity");
 		String message = request.getParameter("message");
 
+		//入力した日が入る
 		Date orderdate;
 		try {
 			orderdate = sdf.parse(request.getParameter("orderdate"));
@@ -211,85 +219,99 @@ public class Input extends HttpServlet {
 			}
 		}
 
-//		if (food_price_ids == null && drink_price_ids == null) {
-//			errors.add("料理かドリンクどちらかを選択してください");
-//		}
-
 		int customer_id = 0;
 		if (errors.size() == 0) {
 			DbAccess.getConnection();
 			try {
 				DbAccess.setAutoCommit();
-
 				CustomersTable customersTable = new CustomersTable();
-				//mobilephoneRead()にてインスタンスしているcustomerをcustomerに入れる
+
+				//入力された携帯番号と固定電話番号をmobilephoneRead()、phoneRead()の引数に渡し、
+				//データ内に同じ番号があるかどうか、データベースで検索している
 				Customer customer1 = customersTable.mobilephoneRead(mobilephone);
-//入力画面から得た情報がデータになかったらcustomer1にnullが入る
 				Customer customer2 = customersTable.phoneRead(phone);
 
 				if (customer1 == null && customer2 == null) {
+					//入力された番号が両方ともデータベースになかった場合
 					customer_id = customersTable.customersInsert(name, mobilephone, phone, birthday, age, photo,
 							likefood,
 							hatefood, memo, numbervisit);
 
 				} else if (customer1 != null && customer2 == null) {
-//					携帯電話で引き込めて、固定電話で引き込めないとき
-					if(phone == null) {
+					//携帯電話で引き込めて、固定電話で引き込めないとき
+					//未入力の部分があれば携帯電話で引き込んだ情報と結合する
+					if (phone == null) {
 						phone = customer1.getPhone();
 					}
-					if(birthday == null) {
+
+					if (birthday == null) {
 						birthday = customer1.getBirthday();
 					}
-					if(age == 0) {
+
+					if (age == 0) {
 						age = customer1.getAge();
 					}
-					if(photo == null || photo.equals("")) {
+
+					if (photo == null || photo.equals("")) {
 						photo_update_flg = false;
-						photo =customer1.getPhoto();
+						photo = customer1.getPhoto();
 					}
+
 					likefood = customer1.getLikefood() + likefood;
 					hatefood = customer1.getHatefood() + hatefood;
 					memo = customer1.getText() + memo;
+
+					//最初に登録してある情報（customer_id)に上書きする
 					customersTable.update(customer1.getCustomers_id(), name, mobilephone, phone, birthday, age, photo,
 							likefood, hatefood, memo, customer1.getNumbervisit() + 1);
 					customer_id = customer1.getCustomers_id();
 
 				} else if (customer1 == null && customer2 != null) {
-//					固定電話で引き込めて、携帯電話で引き込めないとき
-					if(mobilephone == null) {
+					//固定電話で引き込めて、携帯電話で引き込めないとき
+					//未入力の部分があれば携帯電話で引き込んだ情報と結合する
+					if (mobilephone == null) {
 						mobilephone = customer2.getMobilephone();
 					}
-					if(birthday == null) {
+
+					if (birthday == null) {
 						birthday = customer2.getBirthday();
 					}
-					if(age == 0) {
+
+					if (age == 0) {
 						age = customer2.getAge();
 					}
-					if(photo == null || photo.equals("")) {
+
+					if (photo == null || photo.equals("")) {
 						photo_update_flg = false;
-						photo =customer2.getPhoto();
+						photo = customer2.getPhoto();
 					}
+
 					likefood = customer2.getLikefood() + likefood;
 					hatefood = customer2.getHatefood() + hatefood;
 					memo = customer2.getText() + memo;
 
+					//最初に登録してある情報（customer_id)に上書きする
 					customersTable.update(customer2.getCustomers_id(), name, mobilephone, phone, birthday, age, photo,
 							likefood, hatefood, memo, customer2.getNumbervisit() + 1);
 					customer_id = customer2.getCustomers_id();
-				} else if (customer1 != null && customer2 != null) {
 
+				} else if (customer1 != null && customer2 != null) {
+					//携帯電話と固定電話の両方で引き込めたとき
 					if (customer1.getCustomers_id() == customer2.getCustomers_id()) {
-//						携帯電話で引き込めて、固定電話で引き込めたとき
-						if(birthday == null) {
+						//両方の番号が登録してあるデータと一緒の場合
+						if (birthday == null) {
 							birthday = customer1.getBirthday();
 						}
-						if(age == 0) {
+
+						if (age == 0) {
 							age = customer1.getAge();
 						}
-						if(photo == null || photo.equals("")) {
+
+						if (photo == null || photo.equals("")) {
 							photo_update_flg = false;
-							photo =customer1.getPhoto();
+							photo = customer1.getPhoto();
 						}
+
 						likefood = customer1.getLikefood() + likefood;
 						hatefood = customer1.getHatefood() + hatefood;
 						memo = customer1.getText() + memo;
@@ -298,40 +320,50 @@ public class Input extends HttpServlet {
 								photo,
 								likefood, hatefood, memo, customer1.getNumbervisit() + 1);
 						customer_id = customer1.getCustomers_id();
-					} else {
-//						携帯電話で引き込めて、固定電話で引き込めたときに過去登録してあるcustomerIDと違うとき
-//						新規customer_id作成パターン
 
-						if(birthday == null) {
+					} else {
+						//携帯電話と固定電話の両方で引き込めたときで過去登録してあるcustomerIDと違うとき
+						//過去のcustomer_idを2つ削除し、新規customer_id作成パターン
+						//customer1（携帯電話）を優先して上書き処理を行っている
+						if (birthday == null) {
 							birthday = customer1.getBirthday();
-							if(birthday.equals(new Date(1800,01,01))) {
+							if (birthday.equals(new Date(1800, 01, 01))) {
 								birthday = customer2.getBirthday();
+								//未入力、なおかつ携帯電話側の情報にも未登録(1800,01,01)の場合、固定電話側の情報を登録する
 							}
 						}
-						if(age == 0) {
+
+						if (age == 0) {
 							age = customer1.getAge();
-							if(age == 0) {
+							if (age == 0) {
 								age = customer2.getAge();
+								//未入力、なおかつ携帯電話側の情報にも未登録(0)の場合、固定電話側の情報を登録する
 							}
 						}
-						if(photo == null || photo.equals("")) {
+
+						if (photo == null || photo.equals("")) {
 							photo_update_flg = false;
 							photo = customer1.getPhoto();
-							if(photo.equals("")) {
+							if (photo.equals("")) {
 								photo = customer2.getPhoto();
+								//photo_update_flgをfalseにすることでphotoデータの上書きを防ぐ
+								//未入力、なおかつ携帯電話側の情報にも未登録の場合、固定電話側の情報を登録する
 							}
 						}
 
-						likefood = customer1.getLikefood()  + customer2.getLikefood() + likefood;
-						hatefood = customer1.getHatefood()  + customer2.getHatefood() + hatefood;
+						likefood = customer1.getLikefood() + customer2.getLikefood() + likefood;
+						hatefood = customer1.getHatefood() + customer2.getHatefood() + hatefood;
 						memo = customer1.getText() + customer2.getText() + memo;
 						numbervisit = customer1.getNumbervisit() + customer2.getNumbervisit() + 1;
+
+						//携帯電話側の情報と固定電話側の情報をまとめた後に二つの情報を削除する
 						customersTable.delete(customer1.getCustomers_id());
 						customersTable.delete(customer2.getCustomers_id());
 
 						customer_id = customersTable.customersInsert(name, mobilephone, phone, birthday, age, photo,
 								likefood, hatefood, memo, numbervisit);
 
+						//今までのcustomer_idを新規のcustomer_idに変更する
 						FoodsTable ft = new FoodsTable();
 						ft.customerIdUpdate(customer1.getCustomers_id(), customer_id);
 						ft.customerIdUpdate(customer2.getCustomers_id(), customer_id);
@@ -345,7 +377,6 @@ public class Input extends HttpServlet {
 				}
 
 				if (customer_id != 0) {
-
 					if (food_price_ids != null) {
 						FoodsTable foodsTable = new FoodsTable();
 						for (int i = 0; i < food_price_ids.length; i++) {
@@ -359,16 +390,20 @@ public class Input extends HttpServlet {
 							drinksTable.drinkInsert(customer_id, drink_price_ids[i], orderdate, drink_quantitys[i]);
 						}
 					}
+
 					MessagesTable messagesTable = new MessagesTable();
 					messagesTable.messageInsert(customer_id, message, orderdate);
 
+					/*画像をアップロードされた時、フラグ判定により実行
+					 *photoの名前の前にcustomer_idを付け、その後上書きを行う。
+					 *customer_idを付けることでphotoの名前の重複を防ぐ
+					 */
 					if (photo_update_flg) {
 						photo = customer_id + "." + photo;
 						customersTable.photoUpdate(customer_id, photo);
 					}
 				}
 				DbAccess.commit();
-
 			} catch (Exception e) {
 				try {
 					DbAccess.rollback();
@@ -376,7 +411,6 @@ public class Input extends HttpServlet {
 					e.printStackTrace();
 					errors.add("登録時に想定外のエラーが出ましたので、システム管理者に相談してください:Db更新エラー");
 				} catch (SQLException e1) {
-
 					System.out.println("rollbackでエラーが出ました");
 					e1.printStackTrace();
 					errors.add("登録時に想定外のエラーが出ましたので、システム管理者に相談してください:Dbロールバックエラー");
@@ -387,16 +421,18 @@ public class Input extends HttpServlet {
 
 		if (errors.size() == 0 && customer_id != 0) {
 			try {
+				//画像がアップデートされたらフラグ判定によりimgフォルダに先ほどの名前（customer_id + "." + photo）で保存される
 				if (photo_update_flg) {
 					String uploadDir = getServletContext().getRealPath("/img") + File.separator;
 					part.write(uploadDir + photo);
 				}
+
 				DbAccess.getConnection();
 				Customer customer = new CustomersTable().customerRead(customer_id);
 				ArrayList<Message> messagelist = new MessagesTable().messageRead(customer_id);
 				orderdate = messagelist.get(0).getOrderdate();
 				String str_orderdate = sdf.format(orderdate);
-				ArrayList<Food> foodregistration = new FoodsTable().dateRead(customer_id,str_orderdate);
+				ArrayList<Food> foodregistration = new FoodsTable().dateRead(customer_id, str_orderdate);
 				ArrayList<Drink> drinkregistration = new DrinksTable().dateRead(customer_id, str_orderdate);
 
 				FoodPricesTable fpt = new FoodPricesTable();
@@ -426,10 +462,8 @@ public class Input extends HttpServlet {
 
 				request.setAttribute("errormessage", errors);
 				doGet(request, response);
-				//ここに入るとエラーなのにデータベースに書き込まれる
 			}
 		} else {
-
 			request.setAttribute("errormessage", errors);
 			doGet(request, response);
 

@@ -5,7 +5,6 @@ import java.util.Date;
 
 public class Customer implements Serializable{
 
-
 	private static final long serialVersionUID = 1L;
 
 	private int customers_id;
@@ -19,9 +18,6 @@ public class Customer implements Serializable{
 	private String hatefood;
 	private String text;
 	private int numbervisit;
-
-
-
 
 	public Customer(int customers_id, String name, String mobilephone, String phone, Date birthday, int age,
 			String photo, String likefood, String hatefood, String text, int numbervisit) {
@@ -37,7 +33,6 @@ public class Customer implements Serializable{
 		this.text = text;
 		this.numbervisit = numbervisit;
 	}
-
 
 	public int getCustomers_id() {
 		return customers_id;

@@ -43,7 +43,6 @@ public class Registration extends HttpServlet {
 	 */
 	public Registration() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -51,7 +50,6 @@ public class Registration extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		request.setCharacterEncoding("UTF-8");
 		response.sendRedirect("./input");
 	}
@@ -61,15 +59,22 @@ public class Registration extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
+
 		request.setCharacterEncoding("UTF-8");
+
 		ArrayList<String> errors = new ArrayList<>();
 
 		String action = request.getParameter("action");
 
+		//formで送られてくるvalueがchange_dateかupdateかによって処理を分けている
 		if (action.equals("change_date")) {
+
+			//登録してある人の他の日の来店情報を表示する
 			changeDate(request, response, errors);
+
 		} else {
+
+			//登録してある人の情報を変更した場合、変更後の画面を表示する
 			update(request, response, errors);
 		}
 
@@ -77,11 +82,13 @@ public class Registration extends HttpServlet {
 		request.getRequestDispatcher("/WEB-INF/jsp/registration.jsp").forward(request, response);
 	}
 
+	//選択された日に注文した料理・ドリンク・本日の一言メモをデータベースから読み取る
 	private void changeDate(HttpServletRequest request, HttpServletResponse response, ArrayList<String> errors) {
 
 		String str_customer_id = request.getParameter("customer_id");
 		String change_date = request.getParameter("change_date");
 		Customer customer = null;
+
 		ArrayList<Food> foodregistration = null;
 		ArrayList<Drink> drinkregistration = null;
 		ArrayList<Message> messagelist = null;
@@ -91,27 +98,34 @@ public class Registration extends HttpServlet {
 		ArrayList<Date> visit_dates = new ArrayList<>();
 
 		try {
-
 			DbAccess.getConnection();
 			int customer_id = Integer.parseInt(str_customer_id);
 			customer = new CustomersTable().customerRead(customer_id);
 
 			if (customer != null) {
 
+				//料理・ドリンク・メッセージを取得
 				foodregistration = new FoodsTable().dateRead(customer_id, change_date);
 				drinkregistration = new DrinksTable().dateRead(customer_id, change_date);
 				messagelist = new MessagesTable().dateMessageRead(customer_id, change_date);
 
+				//料理のプルダウン表示に使用
 				FoodPricesTable fpt = new FoodPricesTable();
 				foodlist = fpt.allRead();
 
+				//ドリンクのプルダウン表示に使用
 				DrinkPricesTable dpt = new DrinkPricesTable();
 				drinklist = dpt.allRead();
 
 				visit_dates = new MessagesTable().getVisitDates(customer_id);
 
+				/*データベースのmessagesテーブルには日付が一緒に登録されているので
+				 *最終書き込み日を必ず取得できるmessageテーブルから日付取得している
+				 *よって日付がない場合は来店されていないと判断
+				 */
 				if (messagelist.size() != 0) {
 					orderdate = messagelist.get(0).getOrderdate();
+
 				} else {
 					errors.add("その日には来店されていません");
 				}
@@ -129,6 +143,7 @@ public class Registration extends HttpServlet {
 		} finally {
 			DbAccess.close();
 		}
+
 		if (errors.size() == 0) {
 			request.setAttribute("customer", customer);
 			request.setAttribute("foodregistration", foodregistration);
@@ -138,26 +153,30 @@ public class Registration extends HttpServlet {
 			request.setAttribute("foodlist", foodlist);
 			request.setAttribute("drinklist", drinklist);
 			request.setAttribute("visit_dates", visit_dates);
-
 		}
 	}
 
+	//情報の変更を受け、上書きする
 	private void update(HttpServletRequest request, HttpServletResponse response, ArrayList<String> errors) {
 
 		String str_customer_id = request.getParameter("customer_id");
 		int customer_id = 0;
+
 		try {
 			customer_id = Integer.parseInt(str_customer_id);
 		} catch (Exception e) {
 			errors.add("想定外のエラーが発生しました。システム管理者に相談してください:customer_id取得エラー");
 		}
 
+		//もともと登録されていた画像ファイル
 		String post_photo = request.getParameter("photo");
-		if(post_photo == null) {
+		if (post_photo == null) {
 			post_photo = "";
 		}
+
 		String photo = "";
 
+		//あらたにアップロードされた画像ファイル
 		Part part;
 		try {
 			part = request.getPart("image_file");
@@ -168,20 +187,24 @@ public class Registration extends HttpServlet {
 
 		if (part != null) {
 			if (!this.getFileName(part).equals("")) {
+				//画像がアップロードされた場合は、名前を付けてpost_photoに入れている
 				photo = customer_id + "." + this.getFileName(part);
 				post_photo = photo;
 			}
 		}
 
 		String name = request.getParameter("name");
+
 		String mobilephone = request.getParameter("mobilephone");
 		if (mobilephone.equals("")) {
 			mobilephone = null;
 		}
+
 		String phone = request.getParameter("phone");
 		if (phone.equals("")) {
 			phone = null;
 		}
+
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
 		Date birthday;
@@ -205,6 +228,7 @@ public class Registration extends HttpServlet {
 		String likefood = request.getParameter("likefood");
 		String hatefood = request.getParameter("hatefood");
 		String memo = request.getParameter("memo");
+
 		String str_numbervisit = request.getParameter("numbervisit");
 		int numbervisit = 1;
 		try {
@@ -212,12 +236,13 @@ public class Registration extends HttpServlet {
 		} catch (Exception e) {
 			errors.add("システムエラー:numbervisit");
 		}
+
 		String[] str_food_price_ids = request.getParameterValues("food_price_id");
 		String[] str_food_quantitys = request.getParameterValues("food_quantity");
 		String[] str_drink_price_ids = request.getParameterValues("drink_price_id");
 		String[] str_drink_quantitys = request.getParameterValues("drink_quantity");
-		String[] messages = request.getParameterValues("message");
 		String[] str_message_ids = request.getParameterValues("message_id");
+		String[] messages = request.getParameterValues("message");
 
 		String str_orderdate = request.getParameter("orderdate");
 		Date orderdate;
@@ -316,10 +341,12 @@ public class Registration extends HttpServlet {
 
 		try {
 			DbAccess.getConnection();
+
 			Customer customer = new CustomersTable().mobilephoneRead(mobilephone);
 			if (customer != null && customer.getCustomers_id() != customer_id) {
 				errors.add("入力された携帯番号は登録済です。");
 			}
+
 			customer = new CustomersTable().phoneRead(phone);
 			if (customer != null && customer.getCustomers_id() != customer_id) {
 				errors.add("入力された固定電話は登録済です。");
@@ -327,7 +354,6 @@ public class Registration extends HttpServlet {
 
 		} catch (Exception e) {
 			errors.add("登録時に想定外のエラーが出ましたので、システム管理者に相談してください:電話番号読み込みエラー");
-
 		} finally {
 			DbAccess.close();
 		}
@@ -336,12 +362,13 @@ public class Registration extends HttpServlet {
 			DbAccess.getConnection();
 			try {
 				if (photo != null && !photo.equals("")) {
+					//アップロードされた場合imgフォルダに画像を保存
 					String uploadDir = getServletContext().getRealPath("/img") + File.separator;
 					part.write(uploadDir + photo);
 				}
-
 				DbAccess.setAutoCommit();
 
+				//jspから取得したデータを使って上書きする
 				CustomersTable customersTable = new CustomersTable();
 				customersTable.update(customer_id, name, mobilephone, phone, birthday, age,
 						post_photo, likefood, hatefood, memo, numbervisit);
@@ -374,7 +401,6 @@ public class Registration extends HttpServlet {
 					e.printStackTrace();
 					errors.add("登録時に想定外のエラーが出ましたので、システム管理者に相談してください:Db更新エラー");
 				} catch (SQLException e1) {
-
 					System.out.println("rollbackでエラーが出ました");
 					e1.printStackTrace();
 					errors.add("登録時に想定外のエラーが出ましたので、システム管理者に相談してください:Dbロールバックエラー");
@@ -383,14 +409,9 @@ public class Registration extends HttpServlet {
 			DbAccess.close();
 		}
 
-		for (int i = 0; i < errors.size(); i++) {
-
-			System.out.println(errors.get(i));
-		}
-
 		try {
-
 			DbAccess.getConnection();
+
 			Customer customer = new CustomersTable().customerRead(customer_id);
 			ArrayList<Food> foodregistration = new FoodsTable().dateRead(customer_id, str_orderdate);
 			ArrayList<Drink> drinkregistration = new DrinksTable().dateRead(customer_id, str_orderdate);
@@ -419,9 +440,7 @@ public class Registration extends HttpServlet {
 			System.out.println("登録後のDBReadでエラーが出ました");
 			e.printStackTrace();
 			errors.add("登録時に想定外のエラーが出ましたので、システム管理者に相談してください:Db読み込みエラー");
-
 		}
-
 	}
 
 	private String getFileName(Part part) {

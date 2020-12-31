@@ -35,12 +35,12 @@ public class MessagesTable extends DbAccess {
 		}
 
 		res.close();
-
 		pstmt.close();
 
 		return autoIncrementKey;
 	}
 
+	//指定された人の日付を指定してメッセージ取得
 	public ArrayList<Message> dateMessageRead(int inputCustomer_id, String date) throws SQLException {
 
 		ArrayList<Message> msges = new ArrayList<>();
@@ -54,7 +54,6 @@ public class MessagesTable extends DbAccess {
 		ResultSet rs = pstmt.executeQuery();
 
 		while (rs.next()) {
-
 			int message_id = rs.getInt("message_id");
 			int customer_id = rs.getInt("customer_id");
 			String message = rs.getString("message");
@@ -69,6 +68,7 @@ public class MessagesTable extends DbAccess {
 		return msges;
 	}
 
+	//指定された人の最終来店日を取得
 	public ArrayList<Date> getVisitDates(int inputCustomer_id) throws SQLException {
 
 		ArrayList<Date> dates = new ArrayList<>();
@@ -81,17 +81,17 @@ public class MessagesTable extends DbAccess {
 		ResultSet rs = pstmt.executeQuery();
 
 		while (rs.next()) {
-
 			Date orderdate = rs.getTimestamp("orderdate");
-
 			dates.add(orderdate);
 		}
+
 		rs.close();
 		pstmt.close();
 
 		return dates;
 	}
 
+	//指定された人の最終来店日のメッセージを取得
 	public ArrayList<Message> messageRead(int inputCustomer_id) throws SQLException {
 
 		ArrayList<Message> msges = new ArrayList<>();
@@ -105,7 +105,6 @@ public class MessagesTable extends DbAccess {
 		ResultSet rs = pstmt.executeQuery();
 
 		while (rs.next()) {
-
 			int message_id = rs.getInt("message_id");
 			int customer_id = rs.getInt("customer_id");
 			String message = rs.getString("message");
@@ -120,6 +119,7 @@ public class MessagesTable extends DbAccess {
 		return msges;
 	}
 
+	//メッセージデータの登録
 	public void update(int message_id, int customer_id, String message, Date orderdate) throws SQLException {
 
 		PreparedStatement pstmt = connection.prepareStatement(
@@ -138,6 +138,7 @@ public class MessagesTable extends DbAccess {
 
 	}
 
+	//今までのcustomer_idを新規のcustomer_idに変更する
 	public void customerIdUpdate(int old_customer_id, int new_customer_id) throws SQLException {
 
 		PreparedStatement pstmt = connection.prepareStatement(

@@ -45,14 +45,22 @@ public class FoodsTable extends DbAccess {
 		return autoIncrementKey;
 	}
 
+	//人気料理検索に使用
 	public ArrayList<PopularOrder> popularRead(Date inputOrderdate) throws SQLException {
 
 		ArrayList<PopularOrder> lists = new ArrayList<>();
 
+		//何日から何日までと指定することで、1ヶ月分の料理注文回数を検索している
+		//idでグループ分けし、注文回数（sumquantity）で降順した後、合計売上金額（sumprice）で降順している
 		PreparedStatement pstmt = connection
 				.prepareStatement(
-						"SELECT food,foodprice,SUM(foodprice*quantity) AS sumprice, SUM(quantity) AS sumquantity FROM foods JOIN food_prices ON foods.food_price_id=food_prices.food_price_id WHERE orderdate>=? AND orderdate<=? GROUP BY foods.food_price_id ORDER BY sumquantity DESC ,sumprice DESC ");
+						"SELECT food,foodprice,SUM(foodprice*quantity) AS sumprice, SUM(quantity) AS sumquantity "
+								+ "FROM foods JOIN food_prices ON foods.food_price_id=food_prices.food_price_id "
+								+ "WHERE orderdate>=? AND orderdate<=? "
+								+ "GROUP BY foods.food_price_id "
+								+ "ORDER BY sumquantity DESC ,sumprice DESC ");
 
+		//カレンダークラスを利用し、その月が28日か29日か30日か31日かを調べてくれる
 		Calendar c = Calendar.getInstance();
 		c.clear();
 		c.set(inputOrderdate.getYear(), inputOrderdate.getMonth(), 1);
@@ -81,6 +89,7 @@ public class FoodsTable extends DbAccess {
 		return lists;
 	}
 
+	//指定日での注文個数・注文回数を抽出する
 	public ArrayList<Food> dateRead(int inputCustomer_id, String date) throws SQLException {
 
 		ArrayList<Food> lists = new ArrayList<>();
@@ -110,13 +119,17 @@ public class FoodsTable extends DbAccess {
 		return lists;
 	}
 
+	//現在未使用
 	public ArrayList<Food> newDateRead(int inputCustomer_id) throws SQLException {
 
 		ArrayList<Food> lists = new ArrayList<>();
 
+		//指定された人の最終オーダー日での注文回数・注文個数の取得
 		PreparedStatement pstmt = connection
 				.prepareStatement(
-						"SELECT * FROM foods JOIN food_prices ON foods.food_price_id=food_prices.food_price_id WHERE customer_id=? AND orderdate=(SELECT MAX(orderdate) FROM foods WHERE customer_id=?)");
+						"SELECT * FROM foods JOIN food_prices ON foods.food_price_id=food_prices.food_price_id "
+								+ "WHERE customer_id=? AND orderdate=(SELECT MAX(orderdate) "
+								+ "FROM foods WHERE customer_id=?)");
 
 		pstmt.setInt(1, inputCustomer_id);
 		pstmt.setInt(2, inputCustomer_id);
@@ -139,6 +152,7 @@ public class FoodsTable extends DbAccess {
 		return lists;
 	}
 
+	//注文された料理を登録する
 	public void update(int customer_id, int food_price_id, Date orderdate, int quantity) {
 
 		try (
@@ -160,6 +174,7 @@ public class FoodsTable extends DbAccess {
 
 	}
 
+	//今までのcustomer_idを新規のcustomer_idに変更する
 	public void customerIdUpdate(int old_customer_id, int new_customer_id) throws SQLException {
 
 		PreparedStatement pstmt = connection.prepareStatement(

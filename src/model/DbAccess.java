@@ -8,6 +8,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+//DBとの接続を行う抽象クラス
 public abstract class DbAccess {
 
 	protected static Connection connection;
@@ -22,8 +23,8 @@ public abstract class DbAccess {
 		}
 
 		connection = null;
-
 		DataSource ds = null;
+
 		try {
 			Context ctx = new InitialContext();
 			ds = (DataSource) ctx.lookup("java:comp/env/jdbc/customer_management");
@@ -53,19 +54,16 @@ public abstract class DbAccess {
 	public static void setAutoCommit() throws SQLException {
 
 		connection.setAutoCommit(false);
-
 	}
 
 	public static void commit() throws SQLException {
 
 		connection.commit();
-
 	}
 
 	public static void rollback() throws SQLException {
 
 		connection.rollback();
-
 	}
 
 }

@@ -7,14 +7,12 @@ public class Drink implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 
-
 	private int drink_id;
 	private int customer_id;
 	private String drink;
 	private int drinkprice;
 	private Date orderdate;
 	private int quantity;
-
 
 	public Drink(int drink_id, int customer_id, String drink, int drinkprice, Date orderdate, int quantity) {
 		this.drink_id = drink_id;
@@ -48,5 +46,4 @@ public class Drink implements Serializable{
 	public int getQuantity() {
 		return quantity;
 	}
-
 }

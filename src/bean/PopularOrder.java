@@ -11,15 +11,12 @@ public class PopularOrder implements Serializable{
 	private int sumprice;
 	private int sumquantity;
 
-
 	public PopularOrder(String order_id, int order_price, int sumprice, int sumquantity) {
-
 		this.order_id = order_id;
 		this.order_price = order_price;
 		this.sumprice = sumprice;
 		this.sumquantity = sumquantity;
 	}
-
 
 	public String getOrder_id() {
 		return order_id;
@@ -36,6 +33,4 @@ public class PopularOrder implements Serializable{
 	public int getSumquantity() {
 		return sumquantity;
 	}
-
-
 }

@@ -5,10 +5,12 @@
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
 <%
-	ArrayList<FoodPrice> foodlist = (ArrayList<FoodPrice>) request.getAttribute("foodlist");
+ArrayList<FoodPrice> foodlist = (ArrayList<FoodPrice>) request.getAttribute("foodlist");
 ArrayList<DrinkPrice> drinklist = (ArrayList<DrinkPrice>) request.getAttribute("drinklist");
 ArrayList<String> errormessage = (ArrayList<String>) request.getAttribute("errormessage");
+//当日の日付を取得し、来店日とする
 Date orderdate = (Date) request.getAttribute("orderdate");
 SimpleDateFormat sdfY = new SimpleDateFormat("yyyy");
 SimpleDateFormat sdfM = new SimpleDateFormat("MM");
@@ -26,13 +28,6 @@ int totalprice = 0;
 <meta charset="UTF-8">
 
 <style>
-style>img {
-	width: 80%;
-	height: auto;
-	border-radius: 20%;
-	padding-top: 20px;
-}
-
 input {
 	font-size: 16px;
 	border: 1px solid #c1c1c1;
@@ -50,7 +45,8 @@ select {
 	font-size: 100%;
 	border: 1px solid #c1c1c1;
 	border-radius: 5px;
-	padding: 6px 12px;
+	padding: 9px 15px;
+	margin-right: 10px;
 }
 
 option {
@@ -58,6 +54,9 @@ option {
 }
 
 textarea {
+	font-size: 16px;
+	line-height: 1.4em;
+	width: 100%;
 	border: 1px solid #c1c1c1;
 	border-radius: 5px;
 	padding: 10px;
@@ -71,6 +70,18 @@ textarea:focus {
 
 textarea:disabled {
 	background-color: #ffffff;
+}
+
+#my_image {
+	width: 330px;
+	height: 330px;
+	padding-top: 13px;
+}
+
+#totalprice:focus {
+	border: 1px solid #ffa3d1;
+	box-shadow: 4px 4px 4px #ffa3d1;
+	outline: 0;
 }
 
 .large_block {
@@ -94,42 +105,19 @@ textarea:disabled {
 }
 
 .customer {
-	width: 75%;
-	padding: 30px;
+	width: 660px;
+	padding-top: 30px;
 	margin: 20px auto;
-}
-
-#slideshow {
-	position: relative;
-	/* width: 960px;
-            height: 400px;
-            margin: 0 auto; */
-	width: 80%;
-	height: auto;
-	padding-top: 20px;
-}
-
-#slideshow img {
-	position: absolute;
-	top: 0;
-	left: 0;
-	z-index: 8;
-	opacity: 0.0;
-}
-
-#slideshow img.active {
-	z-index: 10;
-	opacity: 1.0;
-}
-
-#slideshow img.last-active {
-	z-index: 9;
 }
 
 .privacy {
 	display: flex;
-	justify-content: flex-end;
 	margin-bottom: 20px;
+}
+
+.profile {
+	display: flex;
+	flex-direction: column;
 }
 
 .nameneed {
@@ -139,27 +127,17 @@ textarea:disabled {
 	margin-left: 15px;
 }
 
-.privacy2 {
-	display: flex;
-	justify-content: flex-end;
-	flex-direction: column;
-	/* width: 500px; */
-}
-
-.privacy2>label {
+.profile label {
 	margin: 10px;
 }
 
-.privacy4 {
+.memo {
 	display: flex;
 	justify-content: center;
 	flex-wrap: wrap;
 }
 
-.privacy4>textarea {
-	font-size: 16px;
-	line-height: 1.4em;
-	width: 100%;
+.memo textarea {
 	margin-bottom: 20px;
 }
 
@@ -167,7 +145,7 @@ textarea:disabled {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-	width: 75%;
+	width: 598px;
 	height: auto;
 	padding: 30px;
 	margin: 20px auto;
@@ -176,31 +154,21 @@ textarea:disabled {
 	background-color: #ffffff;
 }
 
-.visit>div {
+visit p {
+	margin-left: 20px;
+}
+
+.visit div {
 	padding: 20px;
 }
 
-.visit textarea {
-	font-size: 16px;
-	line-height: 1.4em;
-	width: 100%;
-}
-
-.visit textarea:focus {
-	border: 1px solid #ffa3d1;
-	box-shadow: 4px 4px 4px #ffa3d1;
-	outline: 0;
-}
-
-#totalprice:focus{
-	border: 1px solid #ffa3d1;
-	box-shadow: 4px 4px 4px #ffa3d1;
-	outline: 0;
+.visit td {
+	padding: 5px 18px;
 }
 
 .menu input {
-	width: 100px;
-	height: 40px;
+	width: 80px;
+	height: 35px;
 	cursor: pointer;
 	border: 1px solid #ffa3d1;
 	box-shadow: 4px 4px 4px #ffa3d1;
@@ -215,11 +183,12 @@ textarea:disabled {
 .registration {
 	display: flex;
 	justify-content: flex-end;
-	width: 87%;
+	width: 658px;
 	padding: 30px;
+	margin: 20px auto;
 }
 
-.registration>input {
+.registration input {
 	width: 150px;
 	height: 50px;
 	cursor: pointer;
@@ -227,7 +196,7 @@ textarea:disabled {
 	box-shadow: 4px 4px 4px #ff7f00;
 }
 
-.registration>input:active {
+.registration input:active {
 	box-shadow: none;
 	position: relative;
 	top: 4px;
@@ -236,63 +205,38 @@ textarea:disabled {
 .underline {
 	background: linear-gradient(transparent 70%, #ffa3d1 70%);
 }
-
-#my_image {
-	width: 100px;
-	height: 100px;
-}
 </style>
-<script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
 <script>
 
-    /*   function slideSwitch() {
-            let $active = $('#slideshow img.active');
-
-            if ($active.length == 0) $active = $('#slideshow img:last');
-
-            let $next = $active.next().length ? $active.next()
-                : $('#slideshow img:first');
-
-            $active.addClass('last-active');
-
-            $next.css({ opacity: 0.0 })
-                .addClass('active')
-                .animate({ opacity: 1.0 }, 1000, function () {
-                    $active.removeClass('active last-active');
-                });
-
-        }
-
-        $(function () {
-            setInterval("slideSwitch()", 3500);
-        });
-*/
-
-
-
-
+		//foods配列にfoodsオブジェクトを格納する
         const foods = [
         	<%for (FoodPrice fp : foodlist) {
 	out.println(
 			"{ id: '" + fp.getFood_price_id() + "', food: '" + fp.getFood() + "', price: " + fp.getFoodprice() + " },");
 
 }%>
-        ]
-        food_stocks = [];
+        ];
 
+		//追加注文された料理個数を格納する
+        food_stocks = {};
+
+
+		//dorinks配列にdorinksオブジェクトを格納する
         const drinks = [
         	<%for (DrinkPrice dp : drinklist) {
-	out.println("{ id: '" + dp.getDrink_price_id() + "', drink: '" + dp.getDrink() + "', price: " + dp.getDrinkprice()
-			+ " },");
+				out.println("{ id: '" + dp.getDrink_price_id() + "', drink: '" + dp.getDrink() + "', price: "
+						+ dp.getDrinkprice() + " },");
 
-}%>
-        ]
-        drink_stocks = [];
+			}%>
+        ];
+
+       	//追加注文されたドリンク個数を格納する
+        drink_stocks = {};
 
         window.onload = function () {
 
-
+			//アップロードボタンが押された際にイベント発生（画像読み込み）
         	document.getElementById('image_file').addEventListener('change', function(e){
         		const file = document.getElementById('image_file').files[0];
         		let reader = new FileReader();
@@ -304,11 +248,13 @@ textarea:disabled {
         		}
         	});
 
+			//合計金額の取得ができるように
         	const base_totalprice = <%=totalprice%>;
-        	document.getElementById('totalprice').value = base_totalprice;
+        	document.getElementById('totalprice').value = '\xA5' + base_totalprice.toLocaleString();
         	let food_totalprice = 0;
         	let drink_totalprice = 0;
 
+        	//料理のプルダウンを作成
             const sel_food = document.getElementById('sel_food');
             for (let i = 0; i < foods.length; i++) {
                 const op = document.createElement('option');
@@ -318,6 +264,8 @@ textarea:disabled {
                 food_stocks[foods[i].id] = 0;
             }
 
+            //追加ボタンを押された際にイベント発生
+            //個数を追加しプルダウン下に表示する
             document.getElementById('bt_food').addEventListener('click', function () {
 
                 let idx = sel_food.selectedIndex;
@@ -337,10 +285,13 @@ textarea:disabled {
                         additional_totalprice +=food_stocks[v.id] * parseInt(v.price);
                     }
                 });
+                //料理を追加した時に合計金額が変動する
                 food_totalprice = additional_totalprice;
-                document.getElementById('totalprice').value = base_totalprice + food_totalprice + drink_totalprice;
+                let total = base_totalprice + food_totalprice + drink_totalprice;
+                document.getElementById('totalprice').value ='\xA5' + total.toLocaleString();
             });
 
+            //ドリンクのプルダウン作成
             const sel_drink = document.getElementById('sel_drink');
             for (let i = 0; i < drinks.length; i++) {
                 const op = document.createElement('option');
@@ -348,8 +299,10 @@ textarea:disabled {
                 op.innerHTML = drinks[i].drink;
                 sel_drink.appendChild(op);
                 drink_stocks[drinks[i].id] = 0;
-
             }
+
+            //追加ボタンが押された際にイベント発生
+            //個数を追加し、プルダウン下に表示する
             document.getElementById('bt_drink').addEventListener('click', function () {
 
                 let idx = sel_drink.selectedIndex;
@@ -369,13 +322,15 @@ textarea:disabled {
                         additional_totalprice += drink_stocks[v.id] * parseInt(v.price);
                     }
                 });
+                //ドリンクを追加すると合計金額が変動
                 drink_totalprice = additional_totalprice;
-                document.getElementById('totalprice').value = base_totalprice + food_totalprice + drink_totalprice;
+                let total = base_totalprice + food_totalprice + drink_totalprice;
+                document.getElementById('totalprice').value ='\xA5' + total.toLocaleString();
             });
-
         }
 
     </script>
+
 <title>入力画面</title>
 </head>
 
@@ -384,7 +339,7 @@ textarea:disabled {
 		<div class="customer">
 			<div class="error">
 				<%
-					if (errormessage != null) {
+				if (errormessage != null) {
 				%>
 				<c:forEach var="error" items="${errormessage}">
 					<p>
@@ -392,42 +347,32 @@ textarea:disabled {
 					</p>
 				</c:forEach>
 				<%
-					}
+				}
 				%>
 
 			</div>
 			<div class="privacy">
 				<div>
 
-					<img id="my_image"> <label>画像ファイル</label><input type="file"
-						id="image_file" accept="image/*" name="image_file">
+					<img id="my_image"> <input type="file" id="image_file"
+						accept="image/*" name="image_file">
 				</div>
 
-				<div class="privacy2">
+				<div class="profile">
 					<label>名前<span class="nameneed">※入力必須項目</span></label> <input
-						type="text" name="name" placeholder="カタカナ">
-						 <label>携帯番号</label> <input
-						type="tel" name="mobilephone" pattern="[0-9]{3}[0-9]{4}[0-9]{4}"
-						placeholder="09012345678">
-						<label>固定電話</label> <input
-						type="tel" name="phone" pattern="[0-9]{4}[0-9]{2}[0-9]{4}"
-						placeholder="0666447777">
-						<label>誕生日</label> <input
-						type="date" name="birthday">
-						<label>年齢</label> <input
-						type="text" name="age" placeholder="だいたいの年齢">
+						type="text" name="name" placeholder="カタカナ"> <label>携帯番号</label>
+					<input type="tel" name="mobilephone" pattern="[0-9]{11}"
+						placeholder="11桁の数字"> <label>固定電話</label> <input
+						type="tel" name="phone" pattern="[0-9]{10}" placeholder="10桁の数字">
+					<label>誕生日</label> <input type="date" name="birthday"> <label>年齢</label>
+					<input type="number" name="age" placeholder="だいたいの年齢">
 				</div>
-				<!-- 画像は切り替わるよりスライドショーが良いかもしれない
-名前か電話番号が登録されていないと登録ボタンを押せないようにする -->
-
 
 			</div>
 
-			<div class="privacy4">
+			<div class="memo">
 				<label>好きなもの（料理・ドリンク等）</label>
 				<textarea name="likefood" id="" cols="30" rows="4"></textarea>
-				<!-- disabledを入れると部品を無効化
-                    readonlyを入れると書き換えを禁止 -->
 				<label>嫌いなもの（料理・ドリンク等）</label>
 				<textarea name="hatefood" id="" cols="30" rows="4"></textarea>
 				<label>全般メモ（接客時の注意事項や共有すること）</label>
@@ -466,7 +411,7 @@ textarea:disabled {
 			</div>
 
 			<div>
-				<label>当日単価:</label><input type="number" id="totalprice" disabled>
+				当日単価:<input type="text" id="totalprice" disabled>
 			</div>
 
 			<div>

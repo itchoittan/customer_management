@@ -27,6 +27,4 @@ public class DrinkPrice implements Serializable {
 	public int getDrinkprice() {
 		return drinkprice;
 	}
-
-
 }

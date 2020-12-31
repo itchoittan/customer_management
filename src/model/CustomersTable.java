@@ -24,6 +24,8 @@ public class CustomersTable extends DbAccess {
 		pstmt.setString(1, name);
 		pstmt.setString(2, mobilephone);
 		pstmt.setString(3, phone);
+
+		//誕生日が未入力の場合はデフォルトとして1800-01-01としている
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		if (birthday == null) {
 			pstmt.setString(4, "1800-01-01");
@@ -52,6 +54,7 @@ public class CustomersTable extends DbAccess {
 		return autoIncrementKey;
 	}
 
+	//入力された携帯電話によって、データベースから検索する
 	public Customer mobilephoneRead(String inputMobilephone) throws SQLException {
 
 		if (inputMobilephone == null) {
@@ -95,6 +98,7 @@ public class CustomersTable extends DbAccess {
 
 	}
 
+	//入力された固定電話によって、データベースから検索する
 	public Customer phoneRead(String inputPhone) throws SQLException {
 
 		if (inputPhone == null) {
@@ -136,9 +140,10 @@ public class CustomersTable extends DbAccess {
 		return customer;
 	}
 
+	//入力された名前によって、データベースから検索する
 	public ArrayList<Customer> nameRead(String inputName) throws SQLException {
 
-
+		//名前は重複があるので、ArrayListを使用
 		ArrayList<Customer> lists = new ArrayList<>();
 
 		if (inputName == null || inputName.equals("")) {
@@ -176,17 +181,23 @@ public class CustomersTable extends DbAccess {
 
 	}
 
+	//来店回数一覧に使用
 	public ArrayList<Customer> allRead() throws SQLException {
 
 		ArrayList<Customer> lists = new ArrayList<>();
 
+		//customersテーブルとmessageテーブルを結合し、messagesテーブルのcustomer_idによりグループ分けを行う
+		//MAX(orderdate)により一番大きい日付を１件を取得している
+		//それにより重複なしの状態を作り、numbervisitの降順に並べた後に、最終来店日の降順に並べている
 		PreparedStatement pstmt = connection
-				.prepareStatement("SELECT customers.customer_id,name,mobilephone,phone,birthday,age,photo,likefood,hatefood,memo,numbervisit,MAX(orderdate) AS max_orderdate FROM customers JOIN messages ON customers.customer_id=messages.customer_id GROUP BY messages.customer_id ORDER BY numbervisit DESC,max_orderdate DESC;");
+				.prepareStatement("SELECT customers.customer_id,name,mobilephone,phone,birthday,age,photo,likefood,hatefood,memo,numbervisit,MAX(orderdate) AS max_orderdate "
+						+ "FROM customers JOIN messages ON customers.customer_id=messages.customer_id "
+						+ "GROUP BY messages.customer_id "
+						+ "ORDER BY numbervisit DESC,max_orderdate DESC;");
 
 		ResultSet rs = pstmt.executeQuery();
 
 		while (rs.next()) {
-
 
 			int customer_id = rs.getInt("customers.customer_id");
 			String name = rs.getString("name");
@@ -211,6 +222,7 @@ public class CustomersTable extends DbAccess {
 
 	}
 
+	//指定されたcustomer_idの情報を読み込んでいる
 	public Customer customerRead(int inputCustomer_id) throws SQLException {
 
 		Customer customer = null;
@@ -245,6 +257,7 @@ public class CustomersTable extends DbAccess {
 
 	}
 
+	//指定されたcustomer_idの情報を上書きしている
 	public void update(int customers_id, String name, String mobilephone, String phone, Date birthday, int age,
 			String photo, String likefood, String hatefood, String memo, int numbervisit) throws SQLException {
 
@@ -274,6 +287,7 @@ public class CustomersTable extends DbAccess {
 		pstmt.close();
 	}
 
+	//photoのみの上書きを作る事で、データ結合時にcustomer_idによって変更できるようにしている
 	public void photoUpdate(int customers_id, String photo) throws SQLException {
 
 		PreparedStatement pstmt = connection.prepareStatement(
@@ -287,6 +301,7 @@ public class CustomersTable extends DbAccess {
 		pstmt.close();
 	}
 
+	//入力された携帯番号と固定番号が以前登録されており、それぞれが違うcustomer_idの場合使用
 	public void delete(int customer_id) throws SQLException {
 
 		PreparedStatement pstmt = connection.prepareStatement(

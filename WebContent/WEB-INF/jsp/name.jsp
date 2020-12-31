@@ -11,7 +11,6 @@ if (errormessage == null) {
 <head>
 <meta charset="UTF-8">
 
-
 <style>
 .large_block {
 	text-align: center;
@@ -72,9 +71,8 @@ input:focus {
 }
 </style>
 
-
-
 <title>名前検索画面</title>
+
 </head>
 <body>
 

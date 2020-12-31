@@ -13,6 +13,7 @@ if (errormessage == null) {
 	errormessage = "";
 }
 
+//顧客ごとの最終来店日を入れている
 SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
 ArrayList<String> visitdates = new ArrayList<>();
 for (int i = 0; i < orderdates.size(); i++) {

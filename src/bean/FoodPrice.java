@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 public class FoodPrice implements Serializable{
 
-
 	private static final long serialVersionUID = 1L;
 
 	private int food_price_id;
@@ -28,6 +27,4 @@ public class FoodPrice implements Serializable{
 	public int getFoodprice() {
 		return foodprice;
 	}
-
-
 }

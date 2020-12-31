@@ -78,11 +78,16 @@ td:last-child {
 	border-left: transparent;
 }
 
-input {
-	font-size: 16px;
+select {
+	font-size: 100%;
 	border: 1px solid #c1c1c1;
 	border-radius: 5px;
-	padding: 6px 12px;
+	padding: 9px 15px;
+	margin-right: 10px;
+}
+
+input {
+	border: 1px solid #c1c1c1;
 }
 
 input:focus {
@@ -100,8 +105,11 @@ input:focus {
 	width: 80px;
 	height: 35px;
 	cursor: pointer;
+	font-size: 16px;
 	border: 1px solid #ff7f00;
+	border-radius: 5px;
 	box-shadow: 4px 4px 4px #ff7f00;
+	padding: 6px 12px;
 }
 
 .year input:active {
@@ -126,8 +134,16 @@ input:focus {
 <script>
 window.onload =function(){
 
+	//即時関数
 	(function () {
 
+		/**
+		   * セレクトボックスの中にオプションを生成する
+		   * セレクトボックスのDOMのid属性値
+		   * オプションを生成する最初の数値
+		   * オプションを生成する最後の数値
+		   * 現在の日付にマッチする数値
+		   */
         const createOption = (id, startNum, endNum, current) => {
             const selectDom = document.getElementById(id);
             let optionDom = '';
@@ -142,18 +158,22 @@ window.onload =function(){
             selectDom.insertAdjacentHTML('beforeend', optionDom);
         }
 
+        //DOM
         const yearBox = document.getElementById('year');
         const monthBox = document.getElementById('month');
 
+        //日付データ
         const today = new Date();
         const thisYear = today.getFullYear();
         const thisMonth = today.getMonth() + 1;
 
+        //ロード時
         createOption('year', 2000, thisYear, thisYear);
         createOption('month', 1, 12, thisMonth);
 
     })();
 
+	//選択された年月をサーブレットに渡せるようにvalueに設定する
 	const year_change_date = document.getElementById('year');
 	const month_change_date = document.getElementById('month');
 	document.getElementById('bt_change_date').addEventListener('click',function(){
@@ -169,14 +189,12 @@ window.onload =function(){
 	    document.getElementById('form_change_date').submit();
 	});
 
-
-
 }
 
 </script>
 
-
 <title>ドリンクランキング</title>
+
 </head>
 <body>
 

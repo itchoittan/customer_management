@@ -8,14 +8,18 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%
 	Customer customer = (Customer) request.getAttribute("customer");
+
+//photoが未登録の場合もあるかもしれないので、一旦デフォルト写真入れる
 String photo = "./img/sample.jpg";
 if (!customer.getPhoto().equals("")) {
 	photo = "./img/" + customer.getPhoto();
 }
 
+//携帯電話と固定電話が未登録で渡ってきた場合nullと表示されるため、””を入れる
 String mobilephone = "";
 if (customer.getMobilephone() != null)
 	mobilephone = customer.getMobilephone();
+
 String phone = "";
 if (customer.getPhone() != null)
 	phone = customer.getPhone();
@@ -27,6 +31,7 @@ ArrayList<FoodPrice> foodlist = (ArrayList<FoodPrice>) request.getAttribute("foo
 ArrayList<DrinkPrice> drinklist = (ArrayList<DrinkPrice>) request.getAttribute("drinklist");
 ArrayList<String> errormessage = (ArrayList<String>) request.getAttribute("errormessage");
 
+//当日の日付を取得し、来店日とする
 Date orderdate = (Date) request.getAttribute("orderdate");
 SimpleDateFormat sdfY = new SimpleDateFormat("yyyy");
 SimpleDateFormat sdfM = new SimpleDateFormat("MM");
@@ -38,12 +43,16 @@ String orderdateD = sdfD.format(orderdate);
 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 String birthday = sdf.format(customer.getBirthday());
 
+//過去来店された日を格納する
 ArrayList<Date> visit_dates = (ArrayList<Date>) request.getAttribute("visit_dates");
 if (visit_dates == null) {
 	visit_dates = new ArrayList<Date>();
 }
+
+//後で過去来店された来店日表示に使う
 SimpleDateFormat sdfjp = new SimpleDateFormat("yyyy年MM月dd日");
 
+//過去注文されている金額と個数を元に合計金額を出し、表示出来るようにする
 int totalprice = 0;
 for (int i = 0; i < foodregistration.size(); i++) {
 	totalprice += foodregistration.get(i).getFoodprice() * foodregistration.get(i).getQuantity();
@@ -53,19 +62,13 @@ for (int i = 0; i < drinkregistration.size(); i++) {
 }
 %>
 
-
-
-
-
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 
-
 <style>
-style>img {
+style img {
 	width: 80%;
 	height: auto;
 	border-radius: 20%;
@@ -145,33 +148,6 @@ textarea:disabled {
 	margin: 20px auto;
 }
 
-#slideshow {
-	position: relative;
-	/* width: 960px;
-            height: 400px;
-            margin: 0 auto; */
-	width: 80%;
-	height: auto;
-	padding-top: 20px;
-}
-
-#slideshow img {
-	position: absolute;
-	top: 0;
-	left: 0;
-	z-index: 8;
-	opacity: 0.0;
-}
-
-#slideshow img.active {
-	z-index: 10;
-	opacity: 1.0;
-}
-
-#slideshow img.last-active {
-	z-index: 9;
-}
-
 .privacy {
 	display: flex;
 	justify-content: flex-end;
@@ -189,7 +165,6 @@ textarea:disabled {
 	display: flex;
 	justify-content: flex-end;
 	flex-direction: column;
-	/* width: 500px; */
 }
 
 .privacy2>label {
@@ -307,34 +282,9 @@ textarea:disabled {
 	background: linear-gradient(transparent 70%, #ffa3d1 70%);
 }
 </style>
-<script
-	src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
 <script>
-
-    /*   function slideSwitch() {
-            let $active = $('#slideshow img.active');
-
-            if ($active.length == 0) $active = $('#slideshow img:last');
-
-            let $next = $active.next().length ? $active.next()
-                : $('#slideshow img:first');
-
-            $active.addClass('last-active');
-
-            $next.css({ opacity: 0.0 })
-                .addClass('active')
-                .animate({ opacity: 1.0 }, 1000, function () {
-                    $active.removeClass('active last-active');
-                });
-
-        }
-
-        $(function () {
-            setInterval("slideSwitch()", 3500);
-        });
-*/
-
-
+//foods配列にfoodsオブジェクトを格納する
         const foods = [
         	<%for (FoodPrice fp : foodlist) {
 	out.println(
@@ -342,8 +292,11 @@ textarea:disabled {
 
 }%>
         ];
-        food_stocks = [];
 
+      //追加注文された料理個数を格納する
+        food_stocks = {};
+
+      //dorinks配列にdorinksオブジェクトを格納する
         const drinks = [
         	<%for (DrinkPrice dp : drinklist) {
 	out.println("{ id: '" + dp.getDrink_price_id() + "', drink: '" + dp.getDrink() + "', price: " + dp.getDrinkprice()
@@ -351,8 +304,10 @@ textarea:disabled {
 
 }%>
         ];
-        drink_stocks = [];
+      //追加注文されたドリンク個数を格納する
+        drink_stocks = {};
 
+      //変更ボタンが押されたらdisabled属性を解除する
         const func_bt_change =function () {
 			this.removeEventListener('click',func_bt_change);
 			const registration = document.getElementById('registration');
@@ -373,15 +328,13 @@ textarea:disabled {
 
             document.getElementById('numbervisit').disabled = true;
             document.getElementById('totalprice').disabled = true;
-
             document.getElementById('numbervisit').style.backgroundColor = '#ffffff';
 
         }
 
-
-
         window.onload = function () {
 
+        	//アップロードボタンが押された際にイベント発生（画像読み込み）
         	document.getElementById('image_file').addEventListener('change', function(e){
         		const file = document.getElementById('image_file').files[0];
         		let reader = new FileReader();
@@ -393,12 +346,21 @@ textarea:disabled {
         		}
         	});
 
+        	//合計金額の取得ができるように
         	const base_totalprice = <%=totalprice%>;
-        	document.getElementById('totalprice').value = base_totalprice;
+        	document.getElementById('totalprice').value = '\xA5' + base_totalprice.toLocaleString();
         	let food_totalprice = 0;
         	let drink_totalprice = 0;
 
+        	//料理のプルダウンを作成
             const sel_food = document.getElementById('sel_food');
+
+        	/*option要素を作って、
+        	 *valueにfoods[i].id（DBのID）を設定する
+        	 *innerHTMLでDBのドリンク名を書き出す
+        	 *上記二つをselect要素に追加する
+        	 *キー（[foods[i].id]）に値（0）を設定する
+        	 */
             for (let i = 0; i < foods.length; i++) {
                 const op = document.createElement('option');
                 op.value = foods[i].id;
@@ -407,30 +369,55 @@ textarea:disabled {
                 food_stocks[foods[i].id] = 0;
             }
 
+          //追加ボタンを押された際にイベント発生
+            //個数を追加しプルダウン下に表示する
             document.getElementById('bt_food').addEventListener('click', function () {
 
+            	 /*select要素内の選ばれたもののインデックスを取得する
+ 				 *idxで取得したインデックスのoptionのvalueに設定された（DBのID)をfood_price_idに入れる
+ 				 *選ばれた判定として、food_stocks配列の[food_price_id]番号の値に1加算する
+  				 */
                 let idx = sel_food.selectedIndex;
                 let food_price_id = sel_food.options[idx].value;
                 food_stocks[food_price_id] += 1;
                 const tf = document.getElementById("table_food");
-                tf.innerHTML = "";
-                let additional_totalprice =0;
+
+                let e_tr = tf.getElementsByClassName('additional_food_tr');
+                let e = [];
+                for(let i = 0; i < e_tr.length; i++){
+                	e.push(e_tr[i]);
+                }
+
+                e.forEach(v => v.parentNode.removeChild(v));
+
+                let additional_totalprice = 0;
                 foods.forEach(v => {
                     if (food_stocks[v.id] !== 0) {
                         const tr = document.createElement('tr');
+                        tr.classList.add('additional_food_tr');
                         let td = '<td>' + v.food + '</td>';
                         td += '<td>' + food_stocks[v.id] + '</td>';
                         td += '<td>' + food_stocks[v.id] * parseInt(v.price) + '<input type="hidden" name="food_price_id" value="' + v.id + '"><input type = "hidden" name = "food_quantity" value = "' + food_stocks[v.id] + '" ></td>';
                         tr.innerHTML = td;
                         tf.appendChild(tr);
-                        additional_totalprice +=food_stocks[v.id] * parseInt(v.price);
+                        additional_totalprice += food_stocks[v.id] * parseInt(v.price);
                     }
                 });
+
+              //料理を追加した時に合計金額が変動する
                 food_totalprice = additional_totalprice;
-                document.getElementById('totalprice').value = base_totalprice + food_totalprice + drink_totalprice;
+                let total = base_totalprice + food_totalprice + drink_totalprice;
+                document.getElementById('totalprice').value = '\xA5' + total.toLocaleString();
             });
 
+          //ドリンクのプルダウン作成
             const sel_drink = document.getElementById('sel_drink');
+            	/*option要素を作って、
+            	 *valueにdrinks[i].id（DBのID）を設定する
+            	 *innerHTMLでDBのドリンク名を書き出す
+            	 *上記二つをselect要素に追加する
+            	 *キー（[drinks[i].id]）に値（0）を設定する
+            	 */
             for (let i = 0; i < drinks.length; i++) {
                 const op = document.createElement('option');
                 op.value = drinks[i].id;
@@ -440,16 +427,28 @@ textarea:disabled {
 
             }
             document.getElementById('bt_drink').addEventListener('click', function () {
-
+				/*select要素内の選ばれたもののインデックスを取得する
+				 *idxで取得したインデックスのoptionのvalueに設定された（DBのID)をdrink_price_idに入れる
+				 *選ばれた判定として、drink_stocks配列の[drink_price_id]番号の値に1加算する
+ 				 */
                 let idx = sel_drink.selectedIndex;
                 let drink_price_id = sel_drink.options[idx].value;
                 drink_stocks[drink_price_id] += 1;
                 const tf = document.getElementById("table_drink");
-                tf.innerHTML = "";
+
+                let e_tr = tf.getElementsByClassName('additional_drink_tr');
+                let e = [];
+                for(let i = 0; i < e_tr.length; i++){
+                	e.push(e_tr[i]);
+                }
+
+                e.forEach(v => v.parentNode.removeChild(v));
+
                 let additional_totalprice =0;
                 drinks.forEach(v => {
                     if (drink_stocks[v.id] !== 0) {
                         const tr = document.createElement('tr');
+                        tr.classList.add('additional_drink_tr');
                         let td = '<td>' + v.drink + '</td>';
                         td += '<td>' + drink_stocks[v.id] + '</td>';
                         td += '<td>' + drink_stocks[v.id] * parseInt(v.price) + '<input type="hidden" name="drink_price_id" value="' + v.id + '"><input type = "hidden" name = "drink_quantity" value = "' + drink_stocks[v.id] + '" ></td>';
@@ -458,22 +457,24 @@ textarea:disabled {
                         additional_totalprice += drink_stocks[v.id] * parseInt(v.price);
                     }
                 });
+              //ドリンクを追加すると合計金額が変動
                 drink_totalprice = additional_totalprice;
-                document.getElementById('totalprice').value = base_totalprice + food_totalprice + drink_totalprice;
+                let total = base_totalprice + food_totalprice + drink_totalprice;
+                document.getElementById('totalprice').value ='\xA5' + total.toLocaleString();
+
             });
 
-const select_change_date = document.getElementById('select_change_date');
-document.getElementById('bt_change_date').addEventListener('click',function(){
+            //過去来店された日を選択したらその日の情報を取得する
+			const select_change_date = document.getElementById('select_change_date');
+			document.getElementById('bt_change_date').addEventListener('click',function(){
 
-    let idx = select_change_date.selectedIndex;
-    let change_date = select_change_date.options[idx].value;
-    document.getElementById('hidden_change_date').value = change_date;
-    document.getElementById('form_change_date').submit();
-});
+   			 	let idx = select_change_date.selectedIndex;
+   			 	let change_date = select_change_date.options[idx].value;
+   			 	document.getElementById('hidden_change_date').value = change_date;
+   			 	document.getElementById('form_change_date').submit();
+			});
 
-
-
-
+			//常にdisabledにする
             let input_item = document.getElementById('all_area').getElementsByTagName('input');
             for( let i = 0; i < input_item.length; i++){
             	input_item[i].disabled = true;
@@ -493,12 +494,10 @@ document.getElementById('bt_change_date').addEventListener('click',function(){
 
         }
 
-
     </script>
 
-
-
 <title>登録情報画面</title>
+
 </head>
 <body>
 
@@ -507,7 +506,6 @@ document.getElementById('bt_change_date').addEventListener('click',function(){
 		<input type="hidden" name="action" value="update">
 		<div class="customer">
 			<div class="error">
-
 
 				<%
 					if (errormessage != null) {
@@ -520,8 +518,8 @@ document.getElementById('bt_change_date').addEventListener('click',function(){
 				<%
 					}
 				%>
-
 			</div>
+
 			<div class="privacy">
 				<div>
 
@@ -536,8 +534,8 @@ document.getElementById('bt_change_date').addEventListener('click',function(){
 						class="nameneed">※入力必須項目</span></label><input type="text" name="name"
 						id="name" placeholder="カタカナ" value="<%=customer.getName()%>">
 					<label>携帯番号</label><input type="tel" name="mobilephone"
-						pattern="[0-9]{3}[0-9]{4}[0-9]{4}" value="<%=mobilephone%>"><label>固定電話</label><input
-						type="tel" name="phone" pattern="[0-9]{4}[0-9]{2}[0-9]{4}"
+						pattern="[0-9]{11}" placeholder="11桁の数字" value="<%=mobilephone%>"><label>固定電話</label><input
+						type="tel" name="phone" pattern="[0-9]{10}" placeholder="10桁の数字"
 						value="<%=phone%>"><label>誕生日</label><input type="date"
 						name="birthday" value="<%=birthday%>"><label>年齢</label><input
 						type="number" name="age" placeholder="だいたいの年齢"
@@ -547,16 +545,13 @@ document.getElementById('bt_change_date').addEventListener('click',function(){
 						type="hidden" name="numbervisit"
 						value="<%=customer.getNumbervisit()%>">
 				</div>
-				<!-- 画像は切り替わるよりスライドショーが良いかもしれない
-名前か電話番号が登録されていないと登録ボタンを押せないようにする -->
 
 			</div>
 
 			<div class="privacy4">
 				<label>好きなもの（料理・ドリンク等）</label>
 				<textarea name="likefood" id="" cols="30" rows="4"><%=customer.getLikefood()%></textarea>
-				<!-- disabledを入れると部品を無効化
-                    readonlyを入れると書き換えを禁止 -->
+
 				<label>嫌いなもの（料理・ドリンク等）</label>
 				<textarea name="hatefood" id="" cols="30" rows="4"><%=customer.getHatefood()%></textarea>
 				<label>全般メモ（接客時の注意事項や共有すること）</label>
@@ -595,11 +590,10 @@ document.getElementById('bt_change_date').addEventListener('click',function(){
 					</select> <input type="button" id="bt_food" value="追加">
 				</div>
 				<table id="table_food">
-				</table>
+
 				<%
 					if (foodregistration != null) {
 				%>
-				<table>
 					<c:forEach var="food" items="${foodregistration}">
 						<tr>
 							<td><c:out value="${food.food}" /></td>
@@ -607,10 +601,10 @@ document.getElementById('bt_change_date').addEventListener('click',function(){
 							<td><c:out value="${food.foodprice}" /></td>
 						</tr>
 					</c:forEach>
-				</table>
 				<%
 					}
 				%>
+				</table>
 			</div>
 
 			<div>
@@ -622,11 +616,10 @@ document.getElementById('bt_change_date').addEventListener('click',function(){
 					</select> <input type="button" id="bt_drink" value="追加">
 				</div>
 				<table id="table_drink">
-				</table>
+
 				<%
 					if (drinkregistration != null) {
 				%>
-				<table>
 					<c:forEach var="drink" items="${drinkregistration}">
 						<tr>
 							<td><c:out value="${drink.drink}" /></td>
@@ -634,14 +627,14 @@ document.getElementById('bt_change_date').addEventListener('click',function(){
 							<td><c:out value="${drink.drinkprice}" /></td>
 						</tr>
 					</c:forEach>
-				</table>
 				<%
 					}
 				%>
+				</table>
 			</div>
 
 			<div>
-				<label>当日単価:</label><input type="number" id="totalprice">
+				当日単価:<input type="text" id="totalprice">
 			</div>
 
 			<div>
@@ -649,7 +642,6 @@ document.getElementById('bt_change_date').addEventListener('click',function(){
 				<%
 					for (int i = 0; i < messagelist.size(); i++) {
 				%>
-
 				<textarea name="message" id="" cols="30" rows="4"><%=messagelist.get(i).getMessage()%></textarea>
 				<input type="hidden" name="message_id"
 					value="<%=messagelist.get(i).getMessage_id()%>">
@@ -658,15 +650,13 @@ document.getElementById('bt_change_date').addEventListener('click',function(){
 				%>
 			</div>
 
-
-
 		</div>
 
 		<div class="registration" id="registration">
 			<input type="button" id="bt_change" value="変　更">
 		</div>
-
 	</form>
+
 	<form method="post" id="form_change_date" action="./registration">
 		<input type="hidden" name="action" value="change_date">
 		<input type="hidden" id="hidden_change_date" name="change_date" value="">
